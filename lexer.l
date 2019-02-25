@@ -15,12 +15,15 @@ digit [0-9]
 %%
 "\n"["\t"" "]*"\n"                  {printf("Empty Line\n");
                                      yyless(yyleng-1);
+                                     yylineno++;
                                     }
-"\n"["\t"]*"#"[^\n]*                {printf("This is a comment\n");}
+"\n"["\t"]*"#"[^\n]*                {printf("This is a comment\n");
+                                     yylineno++;}
 "\n"["\t"]*                         {
                                            if(def_mode == 0){
                                             fprintf(yyout, "%s", yytext);
-                                            yyless(0);
+
+yyless(0);
                                             def_mode = 1;
                                             return T_newline;
                                         }else{
