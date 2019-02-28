@@ -3,12 +3,24 @@
     #include <stdio.h>
     #include <string.h>
     #include "y.tab.h"
-    #include "stack.c"
+    #include "stack.c"  
+	#include"uthash.h"
 
-    STACK indent;
-    int pointer=0;
-    int counter=0;
-    int def_mode=0;
+
+	STACK indent;
+	int pointer=0;
+	int counter=0;
+	int def_mode=0;
+
+	struct symbol_node{
+		char name[31]; 		//Variable name
+		int line_no_d; 		// Line Number declared
+		int line_no_used; 	//line number where its used
+		char* type;			//Type pf the variable
+		char* storage;  	// Storage
+		UT_hash_handle hh;	//Makes this structure hashable  
+	};
+
 %}
 letter [A-Za-z]
 digit [0-9]
@@ -22,8 +34,7 @@ digit [0-9]
 "\n"["\t"]*                         {
                                            if(def_mode == 0){
                                             fprintf(yyout, "%s", yytext);
-
-yyless(0);
+											yyless(0);
                                             def_mode = 1;
                                             return T_newline;
                                         }else{
@@ -138,7 +149,10 @@ int main(int argc,char *argv[])
    initStack(&indent, 1000);
    push(&indent, 0);
    fh=fopen(argv[1], "r");
-   fho=fopen("test_output.py", "w");
+   char* output_file = (char*)malloc(sizeof(char) * 100);
+   strcpy(output_file, "optimized_output.py");
+   // strcat(output_file, argv[1]);
+   fho=fopen(output_file, "w");
    yyin=fh;
    yyout=fho;
    yyparse();
