@@ -40,6 +40,14 @@
    		free(iter);
    	}
    }
+
+   void updateType(int scope, const char* name, const char* type){
+   		symbol_node* temp = NULL;
+   		printf("Inside Function");
+   		HASH_FIND_STR(hash_table[scope], name, temp);
+   		if(temp != NULL)
+   			strcpy(temp->type, type);
+   }
 %}
 letter [A-Za-z]
 digit [0-9]
@@ -156,9 +164,9 @@ digit [0-9]
 ({letter}|_)({letter}|_|{digit})*   {
                                        fprintf(yyout, "%s", yytext);
                                        printf("Matched %s\n", yytext);
+                                       int scope = peek(&indent);
                                        char* variable_name = yytext;
                                        symbol_node* temp = NULL;
-                                       int scope = peek(&indent);
                                        //printf("Stack Scope: %d\n", peek(&indent));
                                        HASH_FIND_STR(hash_table[scope], variable_name, temp);
                                        //printf("Stack Scope: %d\n", peek(&indent));            
@@ -177,6 +185,10 @@ digit [0-9]
 											printf("Variable Found: %s\n", temp->name);
 											temp->line_no_used = yylineno;
 										}
+										printf("yytext: %s \n", yytext);
+										yylval.y_name = strdup(yytext);
+										yylval.scope = scope;
+										printf("Finished Sending %s %s\n", yytext, yylval.y_name);
                                        return T_name;
                                     }
 {digit}+                            {fprintf(yyout, "%s", yytext);printf("Found a number\n"); return T_number;}
