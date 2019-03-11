@@ -4,7 +4,7 @@
     #include <string.h>
     #include "y.tab.h"
     #include "stack.c"  
-	#include"uthash.h"
+	#include "uthash.h"
 
 
 	STACK indent;
@@ -12,15 +12,34 @@
 	int counter=0;
 	int def_mode=0;
 
-	struct symbol_node{
+	typedef struct symbol_node{
 		char name[31]; 		//Variable name
 		int line_no_d; 		// Line Number declared
 		int line_no_used; 	//line number where its used
 		char* type;			//Type pf the variable
 		char* storage;  	// Storage
 		UT_hash_handle hh;	//Makes this structure hashable  
-	};
+	} symbol_node;
 
+   symbol_node* hash_table[1000];
+
+   void printTable(int scope){
+   	symbol_node *iter;
+	printf("Scope: %d \n", scope);
+   	printf("Name\t| Type\t\t| Line Number Declared\t| Line Number Used\t\n");
+   	for(iter = hash_table[scope]; iter != NULL; iter = iter->hh.next){
+   		printf("%s\t| %s\t| %d\t\t\t| %d\t\t\n", iter->name, iter->type, iter->line_no_d, iter->line_no_used);
+   	}
+   	printf("\n");
+   }
+
+   void clearScope(int scope){
+   	symbol_node *iter, *temp;
+   	HASH_ITER(hh, hash_table[scope], iter, temp){
+   		HASH_DEL(hash_table[scope], iter);
+   		free(iter);
+   	}
+   }
 %}
 letter [A-Za-z]
 digit [0-9]
@@ -49,7 +68,9 @@ digit [0-9]
                                                     return T_indent;
                                                 }
                                                 if(peek(&indent) > yyleng-1){
-                                                    pop(&indent);
+                                                    int removed_scope = pop(&indent);
+                                                    printTable(removed_scope);
+                                                    clearScope(removed_scope);
                                                     printf("Dedenting \n");
                                                     yyless(0);
                                                     return T_dedent;
@@ -61,7 +82,9 @@ digit [0-9]
 <<EOF>>                             {
                                         fprintf(yyout, "%s", yytext);
                                         if (peek(&indent) != 0){
-                                            pop(&indent);
+                                            int removed_scope = pop(&indent);
+                                            printTable(removed_scope);
+                                            clearScope(removed_scope);
                                             printf("Dedenting EOF \n");
                                             return T_dedent;
                                        }else{
@@ -130,7 +153,32 @@ digit [0-9]
 "False"                             {fprintf(yyout, "%s", yytext);return T_false;}
 "def"                               {fprintf(yyout, "%s", yytext);return T_def;}
 " "+                                {fprintf(yyout, " ");/*Extra Whitespace*/}
-({letter}|_)({letter}|_|{digit})*   {fprintf(yyout, "%s", yytext);printf("Matched %s\n", yytext); return T_name;}
+({letter}|_)({letter}|_|{digit})*   {
+                                       fprintf(yyout, "%s", yytext);
+                                       printf("Matched %s\n", yytext);
+                                       char* variable_name = yytext;
+                                       symbol_node* temp = NULL;
+                                       int scope = peek(&indent);
+                                       //printf("Stack Scope: %d\n", peek(&indent));
+                                       HASH_FIND_STR(hash_table[scope], variable_name, temp);
+                                       //printf("Stack Scope: %d\n", peek(&indent));            
+                                       if(temp == NULL){
+											temp = malloc(sizeof(symbol_node));
+											strcpy(temp->name, variable_name);
+											temp->line_no_d = yylineno;
+											temp->line_no_used = yylineno;
+											temp->type = (char*)malloc(sizeof(char) * 20);
+											strcpy(temp->type, "variable");
+											temp->storage = (char*)malloc(sizeof(char) * 100);
+											strcpy(temp->storage, " ");
+											HASH_ADD_STR(hash_table[scope], name, temp);
+											printf("Variable Added: %s\n", temp->name);
+										}else{
+											printf("Variable Found: %s\n", temp->name);
+											temp->line_no_used = yylineno;
+										}
+                                       return T_name;
+                                    }
 {digit}+                            {fprintf(yyout, "%s", yytext);printf("Found a number\n"); return T_number;}
 \"(.)*\"                            {fprintf(yyout, "%s", yytext);return T_string;}
 %%
@@ -148,6 +196,10 @@ int main(int argc,char *argv[])
    FILE *fh, *fho;
    initStack(&indent, 1000);
    push(&indent, 0);
+   //symbol_node** hash_table = (symbol_node**) malloc(1000 * sizeof(symbol_node*));
+   int i;
+   for(i = 0; i < 1000; i++)
+   		hash_table[i] = NULL;
    fh=fopen(argv[1], "r");
    char* output_file = (char*)malloc(sizeof(char) * 100);
    strcpy(output_file, "optimized_output.py");
@@ -156,6 +208,11 @@ int main(int argc,char *argv[])
    yyin=fh;
    yyout=fho;
    yyparse();
+   int scope = peek(&indent);
+   for(i = 0; i <= scope; ++i){
+   	printTable(i);
+   	printf("===============================================\n");
+   }
    fclose(yyin);
    return 0;
 }

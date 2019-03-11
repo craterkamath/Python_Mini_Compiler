@@ -1,0 +1,5115 @@
+State 3 conflicts: 1 shift/reduce
+State 10 conflicts: 13 shift/reduce
+State 30 conflicts: 1 shift/reduce
+State 48 conflicts: 1 shift/reduce
+State 58 conflicts: 2 shift/reduce
+State 59 conflicts: 1 shift/reduce
+State 62 conflicts: 2 shift/reduce
+State 63 conflicts: 1 shift/reduce
+State 69 conflicts: 1 shift/reduce
+State 71 conflicts: 1 shift/reduce
+State 83 conflicts: 1 shift/reduce
+State 109 conflicts: 14 shift/reduce
+State 152 conflicts: 2 shift/reduce
+State 175 conflicts: 1 shift/reduce
+State 190 conflicts: 2 shift/reduce
+State 191 conflicts: 2 shift/reduce
+State 192 conflicts: 1 shift/reduce
+State 193 conflicts: 1 shift/reduce
+State 194 conflicts: 1 shift/reduce
+State 195 conflicts: 1 shift/reduce
+State 202 conflicts: 1 shift/reduce
+State 206 conflicts: 1 shift/reduce
+State 209 conflicts: 1 shift/reduce
+State 212 conflicts: 1 shift/reduce
+State 223 conflicts: 1 shift/reduce
+State 224 conflicts: 1 shift/reduce
+State 283 conflicts: 1 shift/reduce
+State 285 conflicts: 1 shift/reduce
+
+
+Grammar
+
+    0 $accept: file_input $end
+
+    1 file_input: %empty
+    2           | T_newline file_input
+    3           | stmt file_input
+    4           | T_eof
+
+    5 stmt: simple_stmt
+    6     | compound_stmt
+
+    7 simple_stmt: small_stmt next_simple_stmt
+
+    8 next_simple_stmt: end_simple_stmt
+    9                 | T_semi_colon small_stmt next_simple_stmt
+
+   10 end_simple_stmt: T_newline
+   11                | T_semi_colon T_newline
+   12                | %empty
+
+   13 small_stmt: expr_stmt
+   14           | del_stmt
+   15           | pass_stmt
+   16           | flow_stmt
+   17           | import_stmt
+
+   18 expr_stmt: testlist_star_expr next_expr_stmt
+
+   19 next_expr_stmt: augassign testlist
+   20               | last_expr_stmt
+
+   21 last_expr_stmt: %empty
+   22               | T_eq testlist_star_expr last_expr_stmt
+
+   23 testlist_star_expr: first_testlist_star_expr last_testlist_star_expr
+
+   24 first_testlist_star_expr: test
+   25                         | star_expr
+
+   26 last_testlist_star_expr: %empty
+   27                        | T_comma end_testlist_star_expr
+
+   28 end_testlist_star_expr: %empty
+   29                       | test last_testlist_star_expr
+   30                       | star_expr last_testlist_star_expr
+
+   31 augassign: T_plus_eq
+   32          | T_minus_eq
+   33          | T_star_eq
+   34          | T_div_eq
+   35          | T_mod_eq
+   36          | T_or_eq
+   37          | T_xor_eq
+
+   38 del_stmt: T_del exprlist
+
+   39 pass_stmt: T_pass
+
+   40 flow_stmt: break_stmt
+   41          | continue_stmt
+   42          | return_stmt
+
+   43 break_stmt: T_break
+
+   44 continue_stmt: T_continue
+
+   45 return_stmt: T_return optional_return
+
+   46 optional_return: %empty
+   47                | testlist
+
+   48 import_stmt: import_name
+   49            | import_from
+
+   50 import_name: T_import dotted_as_names
+
+   51 import_from: T_from dotted_name T_import end_import_from
+
+   52 end_import_from: T_star
+   53                | T_Lparan import_as_names T_Rparan
+   54                | import_as_names
+
+   55 import_as_name: T_name optional_t_name
+
+   56 optional_t_name: %empty
+   57                | T_as T_name
+
+   58 dotted_as_name: dotted_name optional_t_name
+
+   59 import_as_names: import_as_name end_import_as_names
+
+   60 end_import_as_names: %empty
+   61                    | T_comma import_as_name end_import_as_names
+
+   62 dotted_as_names: dotted_as_name end_dotted_as_names
+
+   63 end_dotted_as_names: %empty
+   64                    | T_comma dotted_as_name end_dotted_as_names
+
+   65 dotted_name: T_name optional_dotted_name
+
+   66 optional_dotted_name: %empty
+   67                     | T_dot dotted_name
+
+   68 compound_stmt: if_stmt
+   69              | for_stmt
+   70              | funcdef
+
+   71 funcdef: T_def T_name parameters T_colon suite
+
+   72 parameters: T_Lparan optional_typedargslist T_Rparan
+
+   73 optional_typedargslist: %empty
+   74                       | typedargslist
+
+   75 typedargslist: T_name optional_eq_test repeat_optional_eq_test
+
+   76 optional_eq_test: %empty
+   77                 | T_eq test
+
+   78 repeat_optional_eq_test: %empty
+   79                        | T_comma T_name optional_eq_test repeat_optional_eq_test
+
+   80 if_stmt: T_if test T_colon suite elif_stmt optional_else
+
+   81 elif_stmt: %empty
+   82          | T_elif test T_colon suite elif_stmt
+
+   83 for_stmt: T_for exprlist T_in testlist T_colon suite optional_else
+
+   84 optional_else: %empty
+   85              | T_else T_colon suite
+
+   86 suite: simple_stmt
+   87      | T_newline T_indent stmt repeat_stmt T_dedent
+
+   88 repeat_stmt: %empty
+   89            | stmt repeat_stmt
+
+   90 test: or_test optional_if_else
+
+   91 optional_if_else: %empty
+   92                 | T_if or_test T_else test
+
+   93 or_test: and_test repeat_or_test
+
+   94 repeat_or_test: %empty
+   95               | T_or and_test repeat_or_test
+
+   96 and_test: not_test repeat_and_test
+
+   97 repeat_and_test: %empty
+   98                | T_and not_test repeat_and_test
+
+   99 not_test: T_not not_test
+  100         | comparison
+
+  101 comparison: expr repeat_comp_expr
+
+  102 repeat_comp_expr: %empty
+  103                 | comp_op expr repeat_comp_expr
+
+  104 comp_op: T_lt
+  105        | T_gt
+  106        | T_deq
+  107        | T_ge
+  108        | T_le
+  109        | T_noteq
+  110        | T_in
+  111        | T_notin
+  112        | T_is
+  113        | T_isnot
+
+  114 star_expr: T_star expr
+
+  115 expr: xor_expr repeat_expr
+
+  116 repeat_expr: %empty
+  117            | T_bitwiseor xor_expr repeat_expr
+
+  118 xor_expr: and_expr repeat_xor_expr
+
+  119 repeat_xor_expr: %empty
+  120                | T_bitwisexor and_expr repeat_xor_expr
+
+  121 and_expr: shift_expr repeat_and_expr
+
+  122 repeat_and_expr: %empty
+  123                | T_bitwiseand shift_expr repeat_and_expr
+
+  124 shift_expr: arith_expr repeat_shift_expr
+
+  125 repeat_shift_expr: %empty
+  126                  | T_leftshift arith_expr repeat_shift_expr
+  127                  | T_rightshift arith_expr repeat_shift_expr
+
+  128 arith_expr: term last_arith_expr
+
+  129 last_arith_expr: %empty
+  130                | T_plus term last_arith_expr
+  131                | T_minus term last_arith_expr
+
+  132 term: factor last_term
+
+  133 last_term: %empty
+  134          | T_star factor last_term
+  135          | T_divide factor last_term
+  136          | T_mod factor last_term
+  137          | T_double_divide factor last_term
+
+  138 factor: power
+  139       | T_plus factor
+  140       | T_minus factor
+  141       | T_tilde factor
+
+  142 power: atom_expr optional_factor
+
+  143 optional_factor: %empty
+  144                | T_double_star factor
+
+  145 atom_expr: atom repeat_trailer
+
+  146 repeat_trailer: %empty
+  147               | trailer repeat_trailer
+
+  148 atom: T_Lparan optional_testlist_comp T_Rparan
+  149     | T_squarebleft optional_testlist_comp T_squarebright
+  150     | T_name
+  151     | T_number
+  152     | T_string repeat_string
+  153     | T_ellipsis
+  154     | T_none
+  155     | T_true
+  156     | T_false
+
+  157 optional_testlist_comp: %empty
+  158                       | testlist_comp
+
+  159 repeat_string: %empty
+  160              | T_string repeat_string
+
+  161 testlist_comp: first_testlist_comp last_testlist_comp
+
+  162 first_testlist_comp: test
+  163                    | star_expr
+
+  164 last_testlist_comp: repeat_testlist_comp optional_comma
+
+  165 repeat_testlist_comp: %empty
+  166                     | T_comma end_testlist_comp
+
+  167 end_testlist_comp: test repeat_testlist_comp
+  168                  | star_expr repeat_testlist_comp
+
+  169 trailer: T_Lparan optional_arglist T_Rparan
+  170        | T_squarebleft subscriptlist T_squarebright
+  171        | T_dot T_name
+
+  172 optional_arglist: %empty
+  173                 | arglist
+
+  174 subscriptlist: subscript repeat_subscript optional_comma
+
+  175 repeat_subscript: %empty
+  176                 | T_comma subscript repeat_subscript
+
+  177 subscript: test
+  178          | optional_test T_colon optional_test optional_sliceop
+
+  179 optional_test: %empty
+  180              | test
+
+  181 optional_sliceop: %empty
+  182                 | sliceop
+
+  183 sliceop: T_colon optional_test
+
+  184 exprlist: first_exprlist last_exprlist optional_comma
+
+  185 first_exprlist: expr
+  186               | star_expr
+
+  187 last_exprlist: %empty
+  188              | T_comma first_exprlist last_exprlist
+
+  189 optional_comma: %empty
+  190               | T_comma
+
+  191 testlist: test repeat_test optional_comma
+
+  192 repeat_test: %empty
+  193            | T_comma test repeat_test
+
+  194 arglist: argument repeat_argument optional_comma
+
+  195 repeat_argument: %empty
+  196                | T_comma argument repeat_argument
+
+  197 argument: test T_eq test
+  198         | T_double_star test
+  199         | T_star test
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+error (256)
+T_name (258) 55 57 65 71 75 79 150 171
+T_number (259) 151
+T_string (260) 152 160
+T_newline (261) 2 10 11 87
+T_eof (262) 4
+T_semi_colon (263) 9 11
+T_eq (264) 22 77 197
+T_comma (265) 27 61 64 79 166 176 188 190 193 196
+T_plus_eq (266) 31
+T_minus_eq (267) 32
+T_star_eq (268) 33
+T_div_eq (269) 34
+T_mod_eq (270) 35
+T_or_eq (271) 36
+T_xor_eq (272) 37
+T_del (273) 38
+T_pass (274) 39
+T_break (275) 43
+T_continue (276) 44
+T_return (277) 45
+T_import (278) 50 51
+T_from (279) 51
+T_star (280) 52 114 134 199
+T_Lparan (281) 53 72 148 169
+T_Rparan (282) 53 72 148 169
+T_as (283) 57
+T_dot (284) 67 171
+T_if (285) 80 92
+T_colon (286) 71 80 82 83 85 178 183
+T_elif (287) 82
+T_else (288) 85 92
+T_for (289) 83
+T_in (290) 83 110
+T_indent (291) 87
+T_dedent (292) 87
+T_or (293) 95
+T_and (294) 98
+T_not (295) 99
+T_lt (296) 104
+T_gt (297) 105
+T_deq (298) 106
+T_ge (299) 107
+T_le (300) 108
+T_noteq (301) 109
+T_is (302) 112
+T_isnot (303) 113
+T_notin (304) 111
+T_bitwiseor (305) 117
+T_bitwiseand (306) 123
+T_bitwisexor (307) 120
+T_leftshift (308) 126
+T_rightshift (309) 127
+T_plus (310) 130 139
+T_minus (311) 131 140
+T_divide (312) 135
+T_mod (313) 136
+T_double_divide (314) 137
+T_tilde (315) 141
+T_double_star (316) 144 198
+T_squarebleft (317) 149 170
+T_squarebright (318) 149 170
+T_ellipsis (319) 153
+T_none (320) 154
+T_true (321) 155
+T_false (322) 156
+T_def (323) 71
+
+
+Nonterminals, with rules where they appear
+
+$accept (69)
+    on left: 0
+file_input (70)
+    on left: 1 2 3 4, on right: 0 2 3
+stmt (71)
+    on left: 5 6, on right: 3 87 89
+simple_stmt (72)
+    on left: 7, on right: 5 86
+next_simple_stmt (73)
+    on left: 8 9, on right: 7 9
+end_simple_stmt (74)
+    on left: 10 11 12, on right: 8
+small_stmt (75)
+    on left: 13 14 15 16 17, on right: 7 9
+expr_stmt (76)
+    on left: 18, on right: 13
+next_expr_stmt (77)
+    on left: 19 20, on right: 18
+last_expr_stmt (78)
+    on left: 21 22, on right: 20 22
+testlist_star_expr (79)
+    on left: 23, on right: 18 22
+first_testlist_star_expr (80)
+    on left: 24 25, on right: 23
+last_testlist_star_expr (81)
+    on left: 26 27, on right: 23 29 30
+end_testlist_star_expr (82)
+    on left: 28 29 30, on right: 27
+augassign (83)
+    on left: 31 32 33 34 35 36 37, on right: 19
+del_stmt (84)
+    on left: 38, on right: 14
+pass_stmt (85)
+    on left: 39, on right: 15
+flow_stmt (86)
+    on left: 40 41 42, on right: 16
+break_stmt (87)
+    on left: 43, on right: 40
+continue_stmt (88)
+    on left: 44, on right: 41
+return_stmt (89)
+    on left: 45, on right: 42
+optional_return (90)
+    on left: 46 47, on right: 45
+import_stmt (91)
+    on left: 48 49, on right: 17
+import_name (92)
+    on left: 50, on right: 48
+import_from (93)
+    on left: 51, on right: 49
+end_import_from (94)
+    on left: 52 53 54, on right: 51
+import_as_name (95)
+    on left: 55, on right: 59 61
+optional_t_name (96)
+    on left: 56 57, on right: 55 58
+dotted_as_name (97)
+    on left: 58, on right: 62 64
+import_as_names (98)
+    on left: 59, on right: 53 54
+end_import_as_names (99)
+    on left: 60 61, on right: 59 61
+dotted_as_names (100)
+    on left: 62, on right: 50
+end_dotted_as_names (101)
+    on left: 63 64, on right: 62 64
+dotted_name (102)
+    on left: 65, on right: 51 58 67
+optional_dotted_name (103)
+    on left: 66 67, on right: 65
+compound_stmt (104)
+    on left: 68 69 70, on right: 6
+funcdef (105)
+    on left: 71, on right: 70
+parameters (106)
+    on left: 72, on right: 71
+optional_typedargslist (107)
+    on left: 73 74, on right: 72
+typedargslist (108)
+    on left: 75, on right: 74
+optional_eq_test (109)
+    on left: 76 77, on right: 75 79
+repeat_optional_eq_test (110)
+    on left: 78 79, on right: 75 79
+if_stmt (111)
+    on left: 80, on right: 68
+elif_stmt (112)
+    on left: 81 82, on right: 80 82
+for_stmt (113)
+    on left: 83, on right: 69
+optional_else (114)
+    on left: 84 85, on right: 80 83
+suite (115)
+    on left: 86 87, on right: 71 80 82 83 85
+repeat_stmt (116)
+    on left: 88 89, on right: 87 89
+test (117)
+    on left: 90, on right: 24 29 77 80 82 92 162 167 177 180 191 193
+    197 198 199
+optional_if_else (118)
+    on left: 91 92, on right: 90
+or_test (119)
+    on left: 93, on right: 90 92
+repeat_or_test (120)
+    on left: 94 95, on right: 93 95
+and_test (121)
+    on left: 96, on right: 93 95
+repeat_and_test (122)
+    on left: 97 98, on right: 96 98
+not_test (123)
+    on left: 99 100, on right: 96 98 99
+comparison (124)
+    on left: 101, on right: 100
+repeat_comp_expr (125)
+    on left: 102 103, on right: 101 103
+comp_op (126)
+    on left: 104 105 106 107 108 109 110 111 112 113, on right: 103
+star_expr (127)
+    on left: 114, on right: 25 30 163 168 186
+expr (128)
+    on left: 115, on right: 101 103 114 185
+repeat_expr (129)
+    on left: 116 117, on right: 115 117
+xor_expr (130)
+    on left: 118, on right: 115 117
+repeat_xor_expr (131)
+    on left: 119 120, on right: 118 120
+and_expr (132)
+    on left: 121, on right: 118 120
+repeat_and_expr (133)
+    on left: 122 123, on right: 121 123
+shift_expr (134)
+    on left: 124, on right: 121 123
+repeat_shift_expr (135)
+    on left: 125 126 127, on right: 124 126 127
+arith_expr (136)
+    on left: 128, on right: 124 126 127
+last_arith_expr (137)
+    on left: 129 130 131, on right: 128 130 131
+term (138)
+    on left: 132, on right: 128 130 131
+last_term (139)
+    on left: 133 134 135 136 137, on right: 132 134 135 136 137
+factor (140)
+    on left: 138 139 140 141, on right: 132 134 135 136 137 139 140
+    141 144
+power (141)
+    on left: 142, on right: 138
+optional_factor (142)
+    on left: 143 144, on right: 142
+atom_expr (143)
+    on left: 145, on right: 142
+repeat_trailer (144)
+    on left: 146 147, on right: 145 147
+atom (145)
+    on left: 148 149 150 151 152 153 154 155 156, on right: 145
+optional_testlist_comp (146)
+    on left: 157 158, on right: 148 149
+repeat_string (147)
+    on left: 159 160, on right: 152 160
+testlist_comp (148)
+    on left: 161, on right: 158
+first_testlist_comp (149)
+    on left: 162 163, on right: 161
+last_testlist_comp (150)
+    on left: 164, on right: 161
+repeat_testlist_comp (151)
+    on left: 165 166, on right: 164 167 168
+end_testlist_comp (152)
+    on left: 167 168, on right: 166
+trailer (153)
+    on left: 169 170 171, on right: 147
+optional_arglist (154)
+    on left: 172 173, on right: 169
+subscriptlist (155)
+    on left: 174, on right: 170
+repeat_subscript (156)
+    on left: 175 176, on right: 174 176
+subscript (157)
+    on left: 177 178, on right: 174 176
+optional_test (158)
+    on left: 179 180, on right: 178 183
+optional_sliceop (159)
+    on left: 181 182, on right: 178
+sliceop (160)
+    on left: 183, on right: 182
+exprlist (161)
+    on left: 184, on right: 38 83
+first_exprlist (162)
+    on left: 185 186, on right: 184 188
+last_exprlist (163)
+    on left: 187 188, on right: 184 188
+optional_comma (164)
+    on left: 189 190, on right: 164 174 184 191 194
+testlist (165)
+    on left: 191, on right: 19 47 83
+repeat_test (166)
+    on left: 192 193, on right: 191 193
+arglist (167)
+    on left: 194, on right: 173
+repeat_argument (168)
+    on left: 195 196, on right: 194 196
+argument (169)
+    on left: 197 198 199, on right: 194 196
+
+
+State 0
+
+    0 $accept: . file_input $end
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_newline      shift, and go to state 4
+    T_eof          shift, and go to state 5
+    T_del          shift, and go to state 6
+    T_pass         shift, and go to state 7
+    T_break        shift, and go to state 8
+    T_continue     shift, and go to state 9
+    T_return       shift, and go to state 10
+    T_import       shift, and go to state 11
+    T_from         shift, and go to state 12
+    T_star         shift, and go to state 13
+    T_Lparan       shift, and go to state 14
+    T_if           shift, and go to state 15
+    T_for          shift, and go to state 16
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+    T_def          shift, and go to state 26
+
+    $default  reduce using rule 1 (file_input)
+
+    file_input                go to state 27
+    stmt                      go to state 28
+    simple_stmt               go to state 29
+    small_stmt                go to state 30
+    expr_stmt                 go to state 31
+    testlist_star_expr        go to state 32
+    first_testlist_star_expr  go to state 33
+    del_stmt                  go to state 34
+    pass_stmt                 go to state 35
+    flow_stmt                 go to state 36
+    break_stmt                go to state 37
+    continue_stmt             go to state 38
+    return_stmt               go to state 39
+    import_stmt               go to state 40
+    import_name               go to state 41
+    import_from               go to state 42
+    compound_stmt             go to state 43
+    funcdef                   go to state 44
+    if_stmt                   go to state 45
+    for_stmt                  go to state 46
+    test                      go to state 47
+    or_test                   go to state 48
+    and_test                  go to state 49
+    not_test                  go to state 50
+    comparison                go to state 51
+    star_expr                 go to state 52
+    expr                      go to state 53
+    xor_expr                  go to state 54
+    and_expr                  go to state 55
+    shift_expr                go to state 56
+    arith_expr                go to state 57
+    term                      go to state 58
+    factor                    go to state 59
+    power                     go to state 60
+    atom_expr                 go to state 61
+    atom                      go to state 62
+
+
+State 1
+
+  150 atom: T_name .
+
+    $default  reduce using rule 150 (atom)
+
+
+State 2
+
+  151 atom: T_number .
+
+    $default  reduce using rule 151 (atom)
+
+
+State 3
+
+  152 atom: T_string . repeat_string
+
+    T_string  shift, and go to state 63
+
+    T_string  [reduce using rule 159 (repeat_string)]
+    $default  reduce using rule 159 (repeat_string)
+
+    repeat_string  go to state 64
+
+
+State 4
+
+    2 file_input: T_newline . file_input
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_newline      shift, and go to state 4
+    T_eof          shift, and go to state 5
+    T_del          shift, and go to state 6
+    T_pass         shift, and go to state 7
+    T_break        shift, and go to state 8
+    T_continue     shift, and go to state 9
+    T_return       shift, and go to state 10
+    T_import       shift, and go to state 11
+    T_from         shift, and go to state 12
+    T_star         shift, and go to state 13
+    T_Lparan       shift, and go to state 14
+    T_if           shift, and go to state 15
+    T_for          shift, and go to state 16
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+    T_def          shift, and go to state 26
+
+    $default  reduce using rule 1 (file_input)
+
+    file_input                go to state 65
+    stmt                      go to state 28
+    simple_stmt               go to state 29
+    small_stmt                go to state 30
+    expr_stmt                 go to state 31
+    testlist_star_expr        go to state 32
+    first_testlist_star_expr  go to state 33
+    del_stmt                  go to state 34
+    pass_stmt                 go to state 35
+    flow_stmt                 go to state 36
+    break_stmt                go to state 37
+    continue_stmt             go to state 38
+    return_stmt               go to state 39
+    import_stmt               go to state 40
+    import_name               go to state 41
+    import_from               go to state 42
+    compound_stmt             go to state 43
+    funcdef                   go to state 44
+    if_stmt                   go to state 45
+    for_stmt                  go to state 46
+    test                      go to state 47
+    or_test                   go to state 48
+    and_test                  go to state 49
+    not_test                  go to state 50
+    comparison                go to state 51
+    star_expr                 go to state 52
+    expr                      go to state 53
+    xor_expr                  go to state 54
+    and_expr                  go to state 55
+    shift_expr                go to state 56
+    arith_expr                go to state 57
+    term                      go to state 58
+    factor                    go to state 59
+    power                     go to state 60
+    atom_expr                 go to state 61
+    atom                      go to state 62
+
+
+State 5
+
+    4 file_input: T_eof .
+
+    $default  reduce using rule 4 (file_input)
+
+
+State 6
+
+   38 del_stmt: T_del . exprlist
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_star         shift, and go to state 13
+    T_Lparan       shift, and go to state 14
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    star_expr       go to state 66
+    expr            go to state 67
+    xor_expr        go to state 54
+    and_expr        go to state 55
+    shift_expr      go to state 56
+    arith_expr      go to state 57
+    term            go to state 58
+    factor          go to state 59
+    power           go to state 60
+    atom_expr       go to state 61
+    atom            go to state 62
+    exprlist        go to state 68
+    first_exprlist  go to state 69
+
+
+State 7
+
+   39 pass_stmt: T_pass .
+
+    $default  reduce using rule 39 (pass_stmt)
+
+
+State 8
+
+   43 break_stmt: T_break .
+
+    $default  reduce using rule 43 (break_stmt)
+
+
+State 9
+
+   44 continue_stmt: T_continue .
+
+    $default  reduce using rule 44 (continue_stmt)
+
+
+State 10
+
+   45 return_stmt: T_return . optional_return
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    T_name         [reduce using rule 46 (optional_return)]
+    T_number       [reduce using rule 46 (optional_return)]
+    T_string       [reduce using rule 46 (optional_return)]
+    T_Lparan       [reduce using rule 46 (optional_return)]
+    T_not          [reduce using rule 46 (optional_return)]
+    T_plus         [reduce using rule 46 (optional_return)]
+    T_minus        [reduce using rule 46 (optional_return)]
+    T_tilde        [reduce using rule 46 (optional_return)]
+    T_squarebleft  [reduce using rule 46 (optional_return)]
+    T_ellipsis     [reduce using rule 46 (optional_return)]
+    T_none         [reduce using rule 46 (optional_return)]
+    T_true         [reduce using rule 46 (optional_return)]
+    T_false        [reduce using rule 46 (optional_return)]
+    $default       reduce using rule 46 (optional_return)
+
+    optional_return  go to state 70
+    test             go to state 71
+    or_test          go to state 48
+    and_test         go to state 49
+    not_test         go to state 50
+    comparison       go to state 51
+    expr             go to state 53
+    xor_expr         go to state 54
+    and_expr         go to state 55
+    shift_expr       go to state 56
+    arith_expr       go to state 57
+    term             go to state 58
+    factor           go to state 59
+    power            go to state 60
+    atom_expr        go to state 61
+    atom             go to state 62
+    testlist         go to state 72
+
+
+State 11
+
+   50 import_name: T_import . dotted_as_names
+
+    T_name  shift, and go to state 73
+
+    dotted_as_name   go to state 74
+    dotted_as_names  go to state 75
+    dotted_name      go to state 76
+
+
+State 12
+
+   51 import_from: T_from . dotted_name T_import end_import_from
+
+    T_name  shift, and go to state 73
+
+    dotted_name  go to state 77
+
+
+State 13
+
+  114 star_expr: T_star . expr
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    expr        go to state 78
+    xor_expr    go to state 54
+    and_expr    go to state 55
+    shift_expr  go to state 56
+    arith_expr  go to state 57
+    term        go to state 58
+    factor      go to state 59
+    power       go to state 60
+    atom_expr   go to state 61
+    atom        go to state 62
+
+
+State 14
+
+  148 atom: T_Lparan . optional_testlist_comp T_Rparan
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_star         shift, and go to state 13
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    $default  reduce using rule 157 (optional_testlist_comp)
+
+    test                    go to state 79
+    or_test                 go to state 48
+    and_test                go to state 49
+    not_test                go to state 50
+    comparison              go to state 51
+    star_expr               go to state 80
+    expr                    go to state 53
+    xor_expr                go to state 54
+    and_expr                go to state 55
+    shift_expr              go to state 56
+    arith_expr              go to state 57
+    term                    go to state 58
+    factor                  go to state 59
+    power                   go to state 60
+    atom_expr               go to state 61
+    atom                    go to state 62
+    optional_testlist_comp  go to state 81
+    testlist_comp           go to state 82
+    first_testlist_comp     go to state 83
+
+
+State 15
+
+   80 if_stmt: T_if . test T_colon suite elif_stmt optional_else
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    test        go to state 84
+    or_test     go to state 48
+    and_test    go to state 49
+    not_test    go to state 50
+    comparison  go to state 51
+    expr        go to state 53
+    xor_expr    go to state 54
+    and_expr    go to state 55
+    shift_expr  go to state 56
+    arith_expr  go to state 57
+    term        go to state 58
+    factor      go to state 59
+    power       go to state 60
+    atom_expr   go to state 61
+    atom        go to state 62
+
+
+State 16
+
+   83 for_stmt: T_for . exprlist T_in testlist T_colon suite optional_else
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_star         shift, and go to state 13
+    T_Lparan       shift, and go to state 14
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    star_expr       go to state 66
+    expr            go to state 67
+    xor_expr        go to state 54
+    and_expr        go to state 55
+    shift_expr      go to state 56
+    arith_expr      go to state 57
+    term            go to state 58
+    factor          go to state 59
+    power           go to state 60
+    atom_expr       go to state 61
+    atom            go to state 62
+    exprlist        go to state 85
+    first_exprlist  go to state 69
+
+
+State 17
+
+   99 not_test: T_not . not_test
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    not_test    go to state 86
+    comparison  go to state 51
+    expr        go to state 53
+    xor_expr    go to state 54
+    and_expr    go to state 55
+    shift_expr  go to state 56
+    arith_expr  go to state 57
+    term        go to state 58
+    factor      go to state 59
+    power       go to state 60
+    atom_expr   go to state 61
+    atom        go to state 62
+
+
+State 18
+
+  139 factor: T_plus . factor
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    factor     go to state 87
+    power      go to state 60
+    atom_expr  go to state 61
+    atom       go to state 62
+
+
+State 19
+
+  140 factor: T_minus . factor
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    factor     go to state 88
+    power      go to state 60
+    atom_expr  go to state 61
+    atom       go to state 62
+
+
+State 20
+
+  141 factor: T_tilde . factor
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    factor     go to state 89
+    power      go to state 60
+    atom_expr  go to state 61
+    atom       go to state 62
+
+
+State 21
+
+  149 atom: T_squarebleft . optional_testlist_comp T_squarebright
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_star         shift, and go to state 13
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    $default  reduce using rule 157 (optional_testlist_comp)
+
+    test                    go to state 79
+    or_test                 go to state 48
+    and_test                go to state 49
+    not_test                go to state 50
+    comparison              go to state 51
+    star_expr               go to state 80
+    expr                    go to state 53
+    xor_expr                go to state 54
+    and_expr                go to state 55
+    shift_expr              go to state 56
+    arith_expr              go to state 57
+    term                    go to state 58
+    factor                  go to state 59
+    power                   go to state 60
+    atom_expr               go to state 61
+    atom                    go to state 62
+    optional_testlist_comp  go to state 90
+    testlist_comp           go to state 82
+    first_testlist_comp     go to state 83
+
+
+State 22
+
+  153 atom: T_ellipsis .
+
+    $default  reduce using rule 153 (atom)
+
+
+State 23
+
+  154 atom: T_none .
+
+    $default  reduce using rule 154 (atom)
+
+
+State 24
+
+  155 atom: T_true .
+
+    $default  reduce using rule 155 (atom)
+
+
+State 25
+
+  156 atom: T_false .
+
+    $default  reduce using rule 156 (atom)
+
+
+State 26
+
+   71 funcdef: T_def . T_name parameters T_colon suite
+
+    T_name  shift, and go to state 91
+
+
+State 27
+
+    0 $accept: file_input . $end
+
+    $end  shift, and go to state 92
+
+
+State 28
+
+    3 file_input: stmt . file_input
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_newline      shift, and go to state 4
+    T_eof          shift, and go to state 5
+    T_del          shift, and go to state 6
+    T_pass         shift, and go to state 7
+    T_break        shift, and go to state 8
+    T_continue     shift, and go to state 9
+    T_return       shift, and go to state 10
+    T_import       shift, and go to state 11
+    T_from         shift, and go to state 12
+    T_star         shift, and go to state 13
+    T_Lparan       shift, and go to state 14
+    T_if           shift, and go to state 15
+    T_for          shift, and go to state 16
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+    T_def          shift, and go to state 26
+
+    $default  reduce using rule 1 (file_input)
+
+    file_input                go to state 93
+    stmt                      go to state 28
+    simple_stmt               go to state 29
+    small_stmt                go to state 30
+    expr_stmt                 go to state 31
+    testlist_star_expr        go to state 32
+    first_testlist_star_expr  go to state 33
+    del_stmt                  go to state 34
+    pass_stmt                 go to state 35
+    flow_stmt                 go to state 36
+    break_stmt                go to state 37
+    continue_stmt             go to state 38
+    return_stmt               go to state 39
+    import_stmt               go to state 40
+    import_name               go to state 41
+    import_from               go to state 42
+    compound_stmt             go to state 43
+    funcdef                   go to state 44
+    if_stmt                   go to state 45
+    for_stmt                  go to state 46
+    test                      go to state 47
+    or_test                   go to state 48
+    and_test                  go to state 49
+    not_test                  go to state 50
+    comparison                go to state 51
+    star_expr                 go to state 52
+    expr                      go to state 53
+    xor_expr                  go to state 54
+    and_expr                  go to state 55
+    shift_expr                go to state 56
+    arith_expr                go to state 57
+    term                      go to state 58
+    factor                    go to state 59
+    power                     go to state 60
+    atom_expr                 go to state 61
+    atom                      go to state 62
+
+
+State 29
+
+    5 stmt: simple_stmt .
+
+    $default  reduce using rule 5 (stmt)
+
+
+State 30
+
+    7 simple_stmt: small_stmt . next_simple_stmt
+
+    T_newline     shift, and go to state 94
+    T_semi_colon  shift, and go to state 95
+
+    T_newline  [reduce using rule 12 (end_simple_stmt)]
+    $default   reduce using rule 12 (end_simple_stmt)
+
+    next_simple_stmt  go to state 96
+    end_simple_stmt   go to state 97
+
+
+State 31
+
+   13 small_stmt: expr_stmt .
+
+    $default  reduce using rule 13 (small_stmt)
+
+
+State 32
+
+   18 expr_stmt: testlist_star_expr . next_expr_stmt
+
+    T_eq        shift, and go to state 98
+    T_plus_eq   shift, and go to state 99
+    T_minus_eq  shift, and go to state 100
+    T_star_eq   shift, and go to state 101
+    T_div_eq    shift, and go to state 102
+    T_mod_eq    shift, and go to state 103
+    T_or_eq     shift, and go to state 104
+    T_xor_eq    shift, and go to state 105
+
+    $default  reduce using rule 21 (last_expr_stmt)
+
+    next_expr_stmt  go to state 106
+    last_expr_stmt  go to state 107
+    augassign       go to state 108
+
+
+State 33
+
+   23 testlist_star_expr: first_testlist_star_expr . last_testlist_star_expr
+
+    T_comma  shift, and go to state 109
+
+    $default  reduce using rule 26 (last_testlist_star_expr)
+
+    last_testlist_star_expr  go to state 110
+
+
+State 34
+
+   14 small_stmt: del_stmt .
+
+    $default  reduce using rule 14 (small_stmt)
+
+
+State 35
+
+   15 small_stmt: pass_stmt .
+
+    $default  reduce using rule 15 (small_stmt)
+
+
+State 36
+
+   16 small_stmt: flow_stmt .
+
+    $default  reduce using rule 16 (small_stmt)
+
+
+State 37
+
+   40 flow_stmt: break_stmt .
+
+    $default  reduce using rule 40 (flow_stmt)
+
+
+State 38
+
+   41 flow_stmt: continue_stmt .
+
+    $default  reduce using rule 41 (flow_stmt)
+
+
+State 39
+
+   42 flow_stmt: return_stmt .
+
+    $default  reduce using rule 42 (flow_stmt)
+
+
+State 40
+
+   17 small_stmt: import_stmt .
+
+    $default  reduce using rule 17 (small_stmt)
+
+
+State 41
+
+   48 import_stmt: import_name .
+
+    $default  reduce using rule 48 (import_stmt)
+
+
+State 42
+
+   49 import_stmt: import_from .
+
+    $default  reduce using rule 49 (import_stmt)
+
+
+State 43
+
+    6 stmt: compound_stmt .
+
+    $default  reduce using rule 6 (stmt)
+
+
+State 44
+
+   70 compound_stmt: funcdef .
+
+    $default  reduce using rule 70 (compound_stmt)
+
+
+State 45
+
+   68 compound_stmt: if_stmt .
+
+    $default  reduce using rule 68 (compound_stmt)
+
+
+State 46
+
+   69 compound_stmt: for_stmt .
+
+    $default  reduce using rule 69 (compound_stmt)
+
+
+State 47
+
+   24 first_testlist_star_expr: test .
+
+    $default  reduce using rule 24 (first_testlist_star_expr)
+
+
+State 48
+
+   90 test: or_test . optional_if_else
+
+    T_if  shift, and go to state 111
+
+    T_if      [reduce using rule 91 (optional_if_else)]
+    $default  reduce using rule 91 (optional_if_else)
+
+    optional_if_else  go to state 112
+
+
+State 49
+
+   93 or_test: and_test . repeat_or_test
+
+    T_or  shift, and go to state 113
+
+    $default  reduce using rule 94 (repeat_or_test)
+
+    repeat_or_test  go to state 114
+
+
+State 50
+
+   96 and_test: not_test . repeat_and_test
+
+    T_and  shift, and go to state 115
+
+    $default  reduce using rule 97 (repeat_and_test)
+
+    repeat_and_test  go to state 116
+
+
+State 51
+
+  100 not_test: comparison .
+
+    $default  reduce using rule 100 (not_test)
+
+
+State 52
+
+   25 first_testlist_star_expr: star_expr .
+
+    $default  reduce using rule 25 (first_testlist_star_expr)
+
+
+State 53
+
+  101 comparison: expr . repeat_comp_expr
+
+    T_in     shift, and go to state 117
+    T_lt     shift, and go to state 118
+    T_gt     shift, and go to state 119
+    T_deq    shift, and go to state 120
+    T_ge     shift, and go to state 121
+    T_le     shift, and go to state 122
+    T_noteq  shift, and go to state 123
+    T_is     shift, and go to state 124
+    T_isnot  shift, and go to state 125
+    T_notin  shift, and go to state 126
+
+    $default  reduce using rule 102 (repeat_comp_expr)
+
+    repeat_comp_expr  go to state 127
+    comp_op           go to state 128
+
+
+State 54
+
+  115 expr: xor_expr . repeat_expr
+
+    T_bitwiseor  shift, and go to state 129
+
+    $default  reduce using rule 116 (repeat_expr)
+
+    repeat_expr  go to state 130
+
+
+State 55
+
+  118 xor_expr: and_expr . repeat_xor_expr
+
+    T_bitwisexor  shift, and go to state 131
+
+    $default  reduce using rule 119 (repeat_xor_expr)
+
+    repeat_xor_expr  go to state 132
+
+
+State 56
+
+  121 and_expr: shift_expr . repeat_and_expr
+
+    T_bitwiseand  shift, and go to state 133
+
+    $default  reduce using rule 122 (repeat_and_expr)
+
+    repeat_and_expr  go to state 134
+
+
+State 57
+
+  124 shift_expr: arith_expr . repeat_shift_expr
+
+    T_leftshift   shift, and go to state 135
+    T_rightshift  shift, and go to state 136
+
+    $default  reduce using rule 125 (repeat_shift_expr)
+
+    repeat_shift_expr  go to state 137
+
+
+State 58
+
+  128 arith_expr: term . last_arith_expr
+
+    T_plus   shift, and go to state 138
+    T_minus  shift, and go to state 139
+
+    T_plus    [reduce using rule 129 (last_arith_expr)]
+    T_minus   [reduce using rule 129 (last_arith_expr)]
+    $default  reduce using rule 129 (last_arith_expr)
+
+    last_arith_expr  go to state 140
+
+
+State 59
+
+  132 term: factor . last_term
+
+    T_star           shift, and go to state 141
+    T_divide         shift, and go to state 142
+    T_mod            shift, and go to state 143
+    T_double_divide  shift, and go to state 144
+
+    T_star    [reduce using rule 133 (last_term)]
+    $default  reduce using rule 133 (last_term)
+
+    last_term  go to state 145
+
+
+State 60
+
+  138 factor: power .
+
+    $default  reduce using rule 138 (factor)
+
+
+State 61
+
+  142 power: atom_expr . optional_factor
+
+    T_double_star  shift, and go to state 146
+
+    $default  reduce using rule 143 (optional_factor)
+
+    optional_factor  go to state 147
+
+
+State 62
+
+  145 atom_expr: atom . repeat_trailer
+
+    T_Lparan       shift, and go to state 148
+    T_dot          shift, and go to state 149
+    T_squarebleft  shift, and go to state 150
+
+    T_Lparan       [reduce using rule 146 (repeat_trailer)]
+    T_squarebleft  [reduce using rule 146 (repeat_trailer)]
+    $default       reduce using rule 146 (repeat_trailer)
+
+    repeat_trailer  go to state 151
+    trailer         go to state 152
+
+
+State 63
+
+  160 repeat_string: T_string . repeat_string
+
+    T_string  shift, and go to state 63
+
+    T_string  [reduce using rule 159 (repeat_string)]
+    $default  reduce using rule 159 (repeat_string)
+
+    repeat_string  go to state 153
+
+
+State 64
+
+  152 atom: T_string repeat_string .
+
+    $default  reduce using rule 152 (atom)
+
+
+State 65
+
+    2 file_input: T_newline file_input .
+
+    $default  reduce using rule 2 (file_input)
+
+
+State 66
+
+  186 first_exprlist: star_expr .
+
+    $default  reduce using rule 186 (first_exprlist)
+
+
+State 67
+
+  185 first_exprlist: expr .
+
+    $default  reduce using rule 185 (first_exprlist)
+
+
+State 68
+
+   38 del_stmt: T_del exprlist .
+
+    $default  reduce using rule 38 (del_stmt)
+
+
+State 69
+
+  184 exprlist: first_exprlist . last_exprlist optional_comma
+
+    T_comma  shift, and go to state 154
+
+    T_comma   [reduce using rule 187 (last_exprlist)]
+    $default  reduce using rule 187 (last_exprlist)
+
+    last_exprlist  go to state 155
+
+
+State 70
+
+   45 return_stmt: T_return optional_return .
+
+    $default  reduce using rule 45 (return_stmt)
+
+
+State 71
+
+  191 testlist: test . repeat_test optional_comma
+
+    T_comma  shift, and go to state 156
+
+    T_comma   [reduce using rule 192 (repeat_test)]
+    $default  reduce using rule 192 (repeat_test)
+
+    repeat_test  go to state 157
+
+
+State 72
+
+   47 optional_return: testlist .
+
+    $default  reduce using rule 47 (optional_return)
+
+
+State 73
+
+   65 dotted_name: T_name . optional_dotted_name
+
+    T_dot  shift, and go to state 158
+
+    $default  reduce using rule 66 (optional_dotted_name)
+
+    optional_dotted_name  go to state 159
+
+
+State 74
+
+   62 dotted_as_names: dotted_as_name . end_dotted_as_names
+
+    T_comma  shift, and go to state 160
+
+    $default  reduce using rule 63 (end_dotted_as_names)
+
+    end_dotted_as_names  go to state 161
+
+
+State 75
+
+   50 import_name: T_import dotted_as_names .
+
+    $default  reduce using rule 50 (import_name)
+
+
+State 76
+
+   58 dotted_as_name: dotted_name . optional_t_name
+
+    T_as  shift, and go to state 162
+
+    $default  reduce using rule 56 (optional_t_name)
+
+    optional_t_name  go to state 163
+
+
+State 77
+
+   51 import_from: T_from dotted_name . T_import end_import_from
+
+    T_import  shift, and go to state 164
+
+
+State 78
+
+  114 star_expr: T_star expr .
+
+    $default  reduce using rule 114 (star_expr)
+
+
+State 79
+
+  162 first_testlist_comp: test .
+
+    $default  reduce using rule 162 (first_testlist_comp)
+
+
+State 80
+
+  163 first_testlist_comp: star_expr .
+
+    $default  reduce using rule 163 (first_testlist_comp)
+
+
+State 81
+
+  148 atom: T_Lparan optional_testlist_comp . T_Rparan
+
+    T_Rparan  shift, and go to state 165
+
+
+State 82
+
+  158 optional_testlist_comp: testlist_comp .
+
+    $default  reduce using rule 158 (optional_testlist_comp)
+
+
+State 83
+
+  161 testlist_comp: first_testlist_comp . last_testlist_comp
+
+    T_comma  shift, and go to state 166
+
+    T_comma   [reduce using rule 165 (repeat_testlist_comp)]
+    $default  reduce using rule 165 (repeat_testlist_comp)
+
+    last_testlist_comp    go to state 167
+    repeat_testlist_comp  go to state 168
+
+
+State 84
+
+   80 if_stmt: T_if test . T_colon suite elif_stmt optional_else
+
+    T_colon  shift, and go to state 169
+
+
+State 85
+
+   83 for_stmt: T_for exprlist . T_in testlist T_colon suite optional_else
+
+    T_in  shift, and go to state 170
+
+
+State 86
+
+   99 not_test: T_not not_test .
+
+    $default  reduce using rule 99 (not_test)
+
+
+State 87
+
+  139 factor: T_plus factor .
+
+    $default  reduce using rule 139 (factor)
+
+
+State 88
+
+  140 factor: T_minus factor .
+
+    $default  reduce using rule 140 (factor)
+
+
+State 89
+
+  141 factor: T_tilde factor .
+
+    $default  reduce using rule 141 (factor)
+
+
+State 90
+
+  149 atom: T_squarebleft optional_testlist_comp . T_squarebright
+
+    T_squarebright  shift, and go to state 171
+
+
+State 91
+
+   71 funcdef: T_def T_name . parameters T_colon suite
+
+    T_Lparan  shift, and go to state 172
+
+    parameters  go to state 173
+
+
+State 92
+
+    0 $accept: file_input $end .
+
+    $default  accept
+
+
+State 93
+
+    3 file_input: stmt file_input .
+
+    $default  reduce using rule 3 (file_input)
+
+
+State 94
+
+   10 end_simple_stmt: T_newline .
+
+    $default  reduce using rule 10 (end_simple_stmt)
+
+
+State 95
+
+    9 next_simple_stmt: T_semi_colon . small_stmt next_simple_stmt
+   11 end_simple_stmt: T_semi_colon . T_newline
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_newline      shift, and go to state 174
+    T_del          shift, and go to state 6
+    T_pass         shift, and go to state 7
+    T_break        shift, and go to state 8
+    T_continue     shift, and go to state 9
+    T_return       shift, and go to state 10
+    T_import       shift, and go to state 11
+    T_from         shift, and go to state 12
+    T_star         shift, and go to state 13
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    small_stmt                go to state 175
+    expr_stmt                 go to state 31
+    testlist_star_expr        go to state 32
+    first_testlist_star_expr  go to state 33
+    del_stmt                  go to state 34
+    pass_stmt                 go to state 35
+    flow_stmt                 go to state 36
+    break_stmt                go to state 37
+    continue_stmt             go to state 38
+    return_stmt               go to state 39
+    import_stmt               go to state 40
+    import_name               go to state 41
+    import_from               go to state 42
+    test                      go to state 47
+    or_test                   go to state 48
+    and_test                  go to state 49
+    not_test                  go to state 50
+    comparison                go to state 51
+    star_expr                 go to state 52
+    expr                      go to state 53
+    xor_expr                  go to state 54
+    and_expr                  go to state 55
+    shift_expr                go to state 56
+    arith_expr                go to state 57
+    term                      go to state 58
+    factor                    go to state 59
+    power                     go to state 60
+    atom_expr                 go to state 61
+    atom                      go to state 62
+
+
+State 96
+
+    7 simple_stmt: small_stmt next_simple_stmt .
+
+    $default  reduce using rule 7 (simple_stmt)
+
+
+State 97
+
+    8 next_simple_stmt: end_simple_stmt .
+
+    $default  reduce using rule 8 (next_simple_stmt)
+
+
+State 98
+
+   22 last_expr_stmt: T_eq . testlist_star_expr last_expr_stmt
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_star         shift, and go to state 13
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    testlist_star_expr        go to state 176
+    first_testlist_star_expr  go to state 33
+    test                      go to state 47
+    or_test                   go to state 48
+    and_test                  go to state 49
+    not_test                  go to state 50
+    comparison                go to state 51
+    star_expr                 go to state 52
+    expr                      go to state 53
+    xor_expr                  go to state 54
+    and_expr                  go to state 55
+    shift_expr                go to state 56
+    arith_expr                go to state 57
+    term                      go to state 58
+    factor                    go to state 59
+    power                     go to state 60
+    atom_expr                 go to state 61
+    atom                      go to state 62
+
+
+State 99
+
+   31 augassign: T_plus_eq .
+
+    $default  reduce using rule 31 (augassign)
+
+
+State 100
+
+   32 augassign: T_minus_eq .
+
+    $default  reduce using rule 32 (augassign)
+
+
+State 101
+
+   33 augassign: T_star_eq .
+
+    $default  reduce using rule 33 (augassign)
+
+
+State 102
+
+   34 augassign: T_div_eq .
+
+    $default  reduce using rule 34 (augassign)
+
+
+State 103
+
+   35 augassign: T_mod_eq .
+
+    $default  reduce using rule 35 (augassign)
+
+
+State 104
+
+   36 augassign: T_or_eq .
+
+    $default  reduce using rule 36 (augassign)
+
+
+State 105
+
+   37 augassign: T_xor_eq .
+
+    $default  reduce using rule 37 (augassign)
+
+
+State 106
+
+   18 expr_stmt: testlist_star_expr next_expr_stmt .
+
+    $default  reduce using rule 18 (expr_stmt)
+
+
+State 107
+
+   20 next_expr_stmt: last_expr_stmt .
+
+    $default  reduce using rule 20 (next_expr_stmt)
+
+
+State 108
+
+   19 next_expr_stmt: augassign . testlist
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    test        go to state 71
+    or_test     go to state 48
+    and_test    go to state 49
+    not_test    go to state 50
+    comparison  go to state 51
+    expr        go to state 53
+    xor_expr    go to state 54
+    and_expr    go to state 55
+    shift_expr  go to state 56
+    arith_expr  go to state 57
+    term        go to state 58
+    factor      go to state 59
+    power       go to state 60
+    atom_expr   go to state 61
+    atom        go to state 62
+    testlist    go to state 177
+
+
+State 109
+
+   27 last_testlist_star_expr: T_comma . end_testlist_star_expr
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_star         shift, and go to state 13
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    T_name         [reduce using rule 28 (end_testlist_star_expr)]
+    T_number       [reduce using rule 28 (end_testlist_star_expr)]
+    T_string       [reduce using rule 28 (end_testlist_star_expr)]
+    T_star         [reduce using rule 28 (end_testlist_star_expr)]
+    T_Lparan       [reduce using rule 28 (end_testlist_star_expr)]
+    T_not          [reduce using rule 28 (end_testlist_star_expr)]
+    T_plus         [reduce using rule 28 (end_testlist_star_expr)]
+    T_minus        [reduce using rule 28 (end_testlist_star_expr)]
+    T_tilde        [reduce using rule 28 (end_testlist_star_expr)]
+    T_squarebleft  [reduce using rule 28 (end_testlist_star_expr)]
+    T_ellipsis     [reduce using rule 28 (end_testlist_star_expr)]
+    T_none         [reduce using rule 28 (end_testlist_star_expr)]
+    T_true         [reduce using rule 28 (end_testlist_star_expr)]
+    T_false        [reduce using rule 28 (end_testlist_star_expr)]
+    $default       reduce using rule 28 (end_testlist_star_expr)
+
+    end_testlist_star_expr  go to state 178
+    test                    go to state 179
+    or_test                 go to state 48
+    and_test                go to state 49
+    not_test                go to state 50
+    comparison              go to state 51
+    star_expr               go to state 180
+    expr                    go to state 53
+    xor_expr                go to state 54
+    and_expr                go to state 55
+    shift_expr              go to state 56
+    arith_expr              go to state 57
+    term                    go to state 58
+    factor                  go to state 59
+    power                   go to state 60
+    atom_expr               go to state 61
+    atom                    go to state 62
+
+
+State 110
+
+   23 testlist_star_expr: first_testlist_star_expr last_testlist_star_expr .
+
+    $default  reduce using rule 23 (testlist_star_expr)
+
+
+State 111
+
+   92 optional_if_else: T_if . or_test T_else test
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    or_test     go to state 181
+    and_test    go to state 49
+    not_test    go to state 50
+    comparison  go to state 51
+    expr        go to state 53
+    xor_expr    go to state 54
+    and_expr    go to state 55
+    shift_expr  go to state 56
+    arith_expr  go to state 57
+    term        go to state 58
+    factor      go to state 59
+    power       go to state 60
+    atom_expr   go to state 61
+    atom        go to state 62
+
+
+State 112
+
+   90 test: or_test optional_if_else .
+
+    $default  reduce using rule 90 (test)
+
+
+State 113
+
+   95 repeat_or_test: T_or . and_test repeat_or_test
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    and_test    go to state 182
+    not_test    go to state 50
+    comparison  go to state 51
+    expr        go to state 53
+    xor_expr    go to state 54
+    and_expr    go to state 55
+    shift_expr  go to state 56
+    arith_expr  go to state 57
+    term        go to state 58
+    factor      go to state 59
+    power       go to state 60
+    atom_expr   go to state 61
+    atom        go to state 62
+
+
+State 114
+
+   93 or_test: and_test repeat_or_test .
+
+    $default  reduce using rule 93 (or_test)
+
+
+State 115
+
+   98 repeat_and_test: T_and . not_test repeat_and_test
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    not_test    go to state 183
+    comparison  go to state 51
+    expr        go to state 53
+    xor_expr    go to state 54
+    and_expr    go to state 55
+    shift_expr  go to state 56
+    arith_expr  go to state 57
+    term        go to state 58
+    factor      go to state 59
+    power       go to state 60
+    atom_expr   go to state 61
+    atom        go to state 62
+
+
+State 116
+
+   96 and_test: not_test repeat_and_test .
+
+    $default  reduce using rule 96 (and_test)
+
+
+State 117
+
+  110 comp_op: T_in .
+
+    $default  reduce using rule 110 (comp_op)
+
+
+State 118
+
+  104 comp_op: T_lt .
+
+    $default  reduce using rule 104 (comp_op)
+
+
+State 119
+
+  105 comp_op: T_gt .
+
+    $default  reduce using rule 105 (comp_op)
+
+
+State 120
+
+  106 comp_op: T_deq .
+
+    $default  reduce using rule 106 (comp_op)
+
+
+State 121
+
+  107 comp_op: T_ge .
+
+    $default  reduce using rule 107 (comp_op)
+
+
+State 122
+
+  108 comp_op: T_le .
+
+    $default  reduce using rule 108 (comp_op)
+
+
+State 123
+
+  109 comp_op: T_noteq .
+
+    $default  reduce using rule 109 (comp_op)
+
+
+State 124
+
+  112 comp_op: T_is .
+
+    $default  reduce using rule 112 (comp_op)
+
+
+State 125
+
+  113 comp_op: T_isnot .
+
+    $default  reduce using rule 113 (comp_op)
+
+
+State 126
+
+  111 comp_op: T_notin .
+
+    $default  reduce using rule 111 (comp_op)
+
+
+State 127
+
+  101 comparison: expr repeat_comp_expr .
+
+    $default  reduce using rule 101 (comparison)
+
+
+State 128
+
+  103 repeat_comp_expr: comp_op . expr repeat_comp_expr
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    expr        go to state 184
+    xor_expr    go to state 54
+    and_expr    go to state 55
+    shift_expr  go to state 56
+    arith_expr  go to state 57
+    term        go to state 58
+    factor      go to state 59
+    power       go to state 60
+    atom_expr   go to state 61
+    atom        go to state 62
+
+
+State 129
+
+  117 repeat_expr: T_bitwiseor . xor_expr repeat_expr
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    xor_expr    go to state 185
+    and_expr    go to state 55
+    shift_expr  go to state 56
+    arith_expr  go to state 57
+    term        go to state 58
+    factor      go to state 59
+    power       go to state 60
+    atom_expr   go to state 61
+    atom        go to state 62
+
+
+State 130
+
+  115 expr: xor_expr repeat_expr .
+
+    $default  reduce using rule 115 (expr)
+
+
+State 131
+
+  120 repeat_xor_expr: T_bitwisexor . and_expr repeat_xor_expr
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    and_expr    go to state 186
+    shift_expr  go to state 56
+    arith_expr  go to state 57
+    term        go to state 58
+    factor      go to state 59
+    power       go to state 60
+    atom_expr   go to state 61
+    atom        go to state 62
+
+
+State 132
+
+  118 xor_expr: and_expr repeat_xor_expr .
+
+    $default  reduce using rule 118 (xor_expr)
+
+
+State 133
+
+  123 repeat_and_expr: T_bitwiseand . shift_expr repeat_and_expr
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    shift_expr  go to state 187
+    arith_expr  go to state 57
+    term        go to state 58
+    factor      go to state 59
+    power       go to state 60
+    atom_expr   go to state 61
+    atom        go to state 62
+
+
+State 134
+
+  121 and_expr: shift_expr repeat_and_expr .
+
+    $default  reduce using rule 121 (and_expr)
+
+
+State 135
+
+  126 repeat_shift_expr: T_leftshift . arith_expr repeat_shift_expr
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    arith_expr  go to state 188
+    term        go to state 58
+    factor      go to state 59
+    power       go to state 60
+    atom_expr   go to state 61
+    atom        go to state 62
+
+
+State 136
+
+  127 repeat_shift_expr: T_rightshift . arith_expr repeat_shift_expr
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    arith_expr  go to state 189
+    term        go to state 58
+    factor      go to state 59
+    power       go to state 60
+    atom_expr   go to state 61
+    atom        go to state 62
+
+
+State 137
+
+  124 shift_expr: arith_expr repeat_shift_expr .
+
+    $default  reduce using rule 124 (shift_expr)
+
+
+State 138
+
+  130 last_arith_expr: T_plus . term last_arith_expr
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    term       go to state 190
+    factor     go to state 59
+    power      go to state 60
+    atom_expr  go to state 61
+    atom       go to state 62
+
+
+State 139
+
+  131 last_arith_expr: T_minus . term last_arith_expr
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    term       go to state 191
+    factor     go to state 59
+    power      go to state 60
+    atom_expr  go to state 61
+    atom       go to state 62
+
+
+State 140
+
+  128 arith_expr: term last_arith_expr .
+
+    $default  reduce using rule 128 (arith_expr)
+
+
+State 141
+
+  134 last_term: T_star . factor last_term
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    factor     go to state 192
+    power      go to state 60
+    atom_expr  go to state 61
+    atom       go to state 62
+
+
+State 142
+
+  135 last_term: T_divide . factor last_term
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    factor     go to state 193
+    power      go to state 60
+    atom_expr  go to state 61
+    atom       go to state 62
+
+
+State 143
+
+  136 last_term: T_mod . factor last_term
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    factor     go to state 194
+    power      go to state 60
+    atom_expr  go to state 61
+    atom       go to state 62
+
+
+State 144
+
+  137 last_term: T_double_divide . factor last_term
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    factor     go to state 195
+    power      go to state 60
+    atom_expr  go to state 61
+    atom       go to state 62
+
+
+State 145
+
+  132 term: factor last_term .
+
+    $default  reduce using rule 132 (term)
+
+
+State 146
+
+  144 optional_factor: T_double_star . factor
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    factor     go to state 196
+    power      go to state 60
+    atom_expr  go to state 61
+    atom       go to state 62
+
+
+State 147
+
+  142 power: atom_expr optional_factor .
+
+    $default  reduce using rule 142 (power)
+
+
+State 148
+
+  169 trailer: T_Lparan . optional_arglist T_Rparan
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_star         shift, and go to state 197
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_double_star  shift, and go to state 198
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    $default  reduce using rule 172 (optional_arglist)
+
+    test              go to state 199
+    or_test           go to state 48
+    and_test          go to state 49
+    not_test          go to state 50
+    comparison        go to state 51
+    expr              go to state 53
+    xor_expr          go to state 54
+    and_expr          go to state 55
+    shift_expr        go to state 56
+    arith_expr        go to state 57
+    term              go to state 58
+    factor            go to state 59
+    power             go to state 60
+    atom_expr         go to state 61
+    atom              go to state 62
+    optional_arglist  go to state 200
+    arglist           go to state 201
+    argument          go to state 202
+
+
+State 149
+
+  171 trailer: T_dot . T_name
+
+    T_name  shift, and go to state 203
+
+
+State 150
+
+  170 trailer: T_squarebleft . subscriptlist T_squarebright
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    $default  reduce using rule 179 (optional_test)
+
+    test           go to state 204
+    or_test        go to state 48
+    and_test       go to state 49
+    not_test       go to state 50
+    comparison     go to state 51
+    expr           go to state 53
+    xor_expr       go to state 54
+    and_expr       go to state 55
+    shift_expr     go to state 56
+    arith_expr     go to state 57
+    term           go to state 58
+    factor         go to state 59
+    power          go to state 60
+    atom_expr      go to state 61
+    atom           go to state 62
+    subscriptlist  go to state 205
+    subscript      go to state 206
+    optional_test  go to state 207
+
+
+State 151
+
+  145 atom_expr: atom repeat_trailer .
+
+    $default  reduce using rule 145 (atom_expr)
+
+
+State 152
+
+  147 repeat_trailer: trailer . repeat_trailer
+
+    T_Lparan       shift, and go to state 148
+    T_dot          shift, and go to state 149
+    T_squarebleft  shift, and go to state 150
+
+    T_Lparan       [reduce using rule 146 (repeat_trailer)]
+    T_squarebleft  [reduce using rule 146 (repeat_trailer)]
+    $default       reduce using rule 146 (repeat_trailer)
+
+    repeat_trailer  go to state 208
+    trailer         go to state 152
+
+
+State 153
+
+  160 repeat_string: T_string repeat_string .
+
+    $default  reduce using rule 160 (repeat_string)
+
+
+State 154
+
+  188 last_exprlist: T_comma . first_exprlist last_exprlist
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_star         shift, and go to state 13
+    T_Lparan       shift, and go to state 14
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    star_expr       go to state 66
+    expr            go to state 67
+    xor_expr        go to state 54
+    and_expr        go to state 55
+    shift_expr      go to state 56
+    arith_expr      go to state 57
+    term            go to state 58
+    factor          go to state 59
+    power           go to state 60
+    atom_expr       go to state 61
+    atom            go to state 62
+    first_exprlist  go to state 209
+
+
+State 155
+
+  184 exprlist: first_exprlist last_exprlist . optional_comma
+
+    T_comma  shift, and go to state 210
+
+    $default  reduce using rule 189 (optional_comma)
+
+    optional_comma  go to state 211
+
+
+State 156
+
+  193 repeat_test: T_comma . test repeat_test
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    test        go to state 212
+    or_test     go to state 48
+    and_test    go to state 49
+    not_test    go to state 50
+    comparison  go to state 51
+    expr        go to state 53
+    xor_expr    go to state 54
+    and_expr    go to state 55
+    shift_expr  go to state 56
+    arith_expr  go to state 57
+    term        go to state 58
+    factor      go to state 59
+    power       go to state 60
+    atom_expr   go to state 61
+    atom        go to state 62
+
+
+State 157
+
+  191 testlist: test repeat_test . optional_comma
+
+    T_comma  shift, and go to state 210
+
+    $default  reduce using rule 189 (optional_comma)
+
+    optional_comma  go to state 213
+
+
+State 158
+
+   67 optional_dotted_name: T_dot . dotted_name
+
+    T_name  shift, and go to state 73
+
+    dotted_name  go to state 214
+
+
+State 159
+
+   65 dotted_name: T_name optional_dotted_name .
+
+    $default  reduce using rule 65 (dotted_name)
+
+
+State 160
+
+   64 end_dotted_as_names: T_comma . dotted_as_name end_dotted_as_names
+
+    T_name  shift, and go to state 73
+
+    dotted_as_name  go to state 215
+    dotted_name     go to state 76
+
+
+State 161
+
+   62 dotted_as_names: dotted_as_name end_dotted_as_names .
+
+    $default  reduce using rule 62 (dotted_as_names)
+
+
+State 162
+
+   57 optional_t_name: T_as . T_name
+
+    T_name  shift, and go to state 216
+
+
+State 163
+
+   58 dotted_as_name: dotted_name optional_t_name .
+
+    $default  reduce using rule 58 (dotted_as_name)
+
+
+State 164
+
+   51 import_from: T_from dotted_name T_import . end_import_from
+
+    T_name    shift, and go to state 217
+    T_star    shift, and go to state 218
+    T_Lparan  shift, and go to state 219
+
+    end_import_from  go to state 220
+    import_as_name   go to state 221
+    import_as_names  go to state 222
+
+
+State 165
+
+  148 atom: T_Lparan optional_testlist_comp T_Rparan .
+
+    $default  reduce using rule 148 (atom)
+
+
+State 166
+
+  166 repeat_testlist_comp: T_comma . end_testlist_comp
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_star         shift, and go to state 13
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    test               go to state 223
+    or_test            go to state 48
+    and_test           go to state 49
+    not_test           go to state 50
+    comparison         go to state 51
+    star_expr          go to state 224
+    expr               go to state 53
+    xor_expr           go to state 54
+    and_expr           go to state 55
+    shift_expr         go to state 56
+    arith_expr         go to state 57
+    term               go to state 58
+    factor             go to state 59
+    power              go to state 60
+    atom_expr          go to state 61
+    atom               go to state 62
+    end_testlist_comp  go to state 225
+
+
+State 167
+
+  161 testlist_comp: first_testlist_comp last_testlist_comp .
+
+    $default  reduce using rule 161 (testlist_comp)
+
+
+State 168
+
+  164 last_testlist_comp: repeat_testlist_comp . optional_comma
+
+    T_comma  shift, and go to state 210
+
+    $default  reduce using rule 189 (optional_comma)
+
+    optional_comma  go to state 226
+
+
+State 169
+
+   80 if_stmt: T_if test T_colon . suite elif_stmt optional_else
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_newline      shift, and go to state 227
+    T_del          shift, and go to state 6
+    T_pass         shift, and go to state 7
+    T_break        shift, and go to state 8
+    T_continue     shift, and go to state 9
+    T_return       shift, and go to state 10
+    T_import       shift, and go to state 11
+    T_from         shift, and go to state 12
+    T_star         shift, and go to state 13
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    simple_stmt               go to state 228
+    small_stmt                go to state 30
+    expr_stmt                 go to state 31
+    testlist_star_expr        go to state 32
+    first_testlist_star_expr  go to state 33
+    del_stmt                  go to state 34
+    pass_stmt                 go to state 35
+    flow_stmt                 go to state 36
+    break_stmt                go to state 37
+    continue_stmt             go to state 38
+    return_stmt               go to state 39
+    import_stmt               go to state 40
+    import_name               go to state 41
+    import_from               go to state 42
+    suite                     go to state 229
+    test                      go to state 47
+    or_test                   go to state 48
+    and_test                  go to state 49
+    not_test                  go to state 50
+    comparison                go to state 51
+    star_expr                 go to state 52
+    expr                      go to state 53
+    xor_expr                  go to state 54
+    and_expr                  go to state 55
+    shift_expr                go to state 56
+    arith_expr                go to state 57
+    term                      go to state 58
+    factor                    go to state 59
+    power                     go to state 60
+    atom_expr                 go to state 61
+    atom                      go to state 62
+
+
+State 170
+
+   83 for_stmt: T_for exprlist T_in . testlist T_colon suite optional_else
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    test        go to state 71
+    or_test     go to state 48
+    and_test    go to state 49
+    not_test    go to state 50
+    comparison  go to state 51
+    expr        go to state 53
+    xor_expr    go to state 54
+    and_expr    go to state 55
+    shift_expr  go to state 56
+    arith_expr  go to state 57
+    term        go to state 58
+    factor      go to state 59
+    power       go to state 60
+    atom_expr   go to state 61
+    atom        go to state 62
+    testlist    go to state 230
+
+
+State 171
+
+  149 atom: T_squarebleft optional_testlist_comp T_squarebright .
+
+    $default  reduce using rule 149 (atom)
+
+
+State 172
+
+   72 parameters: T_Lparan . optional_typedargslist T_Rparan
+
+    T_name  shift, and go to state 231
+
+    $default  reduce using rule 73 (optional_typedargslist)
+
+    optional_typedargslist  go to state 232
+    typedargslist           go to state 233
+
+
+State 173
+
+   71 funcdef: T_def T_name parameters . T_colon suite
+
+    T_colon  shift, and go to state 234
+
+
+State 174
+
+   11 end_simple_stmt: T_semi_colon T_newline .
+
+    $default  reduce using rule 11 (end_simple_stmt)
+
+
+State 175
+
+    9 next_simple_stmt: T_semi_colon small_stmt . next_simple_stmt
+
+    T_newline     shift, and go to state 94
+    T_semi_colon  shift, and go to state 95
+
+    T_newline  [reduce using rule 12 (end_simple_stmt)]
+    $default   reduce using rule 12 (end_simple_stmt)
+
+    next_simple_stmt  go to state 235
+    end_simple_stmt   go to state 97
+
+
+State 176
+
+   22 last_expr_stmt: T_eq testlist_star_expr . last_expr_stmt
+
+    T_eq  shift, and go to state 98
+
+    $default  reduce using rule 21 (last_expr_stmt)
+
+    last_expr_stmt  go to state 236
+
+
+State 177
+
+   19 next_expr_stmt: augassign testlist .
+
+    $default  reduce using rule 19 (next_expr_stmt)
+
+
+State 178
+
+   27 last_testlist_star_expr: T_comma end_testlist_star_expr .
+
+    $default  reduce using rule 27 (last_testlist_star_expr)
+
+
+State 179
+
+   29 end_testlist_star_expr: test . last_testlist_star_expr
+
+    T_comma  shift, and go to state 109
+
+    $default  reduce using rule 26 (last_testlist_star_expr)
+
+    last_testlist_star_expr  go to state 237
+
+
+State 180
+
+   30 end_testlist_star_expr: star_expr . last_testlist_star_expr
+
+    T_comma  shift, and go to state 109
+
+    $default  reduce using rule 26 (last_testlist_star_expr)
+
+    last_testlist_star_expr  go to state 238
+
+
+State 181
+
+   92 optional_if_else: T_if or_test . T_else test
+
+    T_else  shift, and go to state 239
+
+
+State 182
+
+   95 repeat_or_test: T_or and_test . repeat_or_test
+
+    T_or  shift, and go to state 113
+
+    $default  reduce using rule 94 (repeat_or_test)
+
+    repeat_or_test  go to state 240
+
+
+State 183
+
+   98 repeat_and_test: T_and not_test . repeat_and_test
+
+    T_and  shift, and go to state 115
+
+    $default  reduce using rule 97 (repeat_and_test)
+
+    repeat_and_test  go to state 241
+
+
+State 184
+
+  103 repeat_comp_expr: comp_op expr . repeat_comp_expr
+
+    T_in     shift, and go to state 117
+    T_lt     shift, and go to state 118
+    T_gt     shift, and go to state 119
+    T_deq    shift, and go to state 120
+    T_ge     shift, and go to state 121
+    T_le     shift, and go to state 122
+    T_noteq  shift, and go to state 123
+    T_is     shift, and go to state 124
+    T_isnot  shift, and go to state 125
+    T_notin  shift, and go to state 126
+
+    $default  reduce using rule 102 (repeat_comp_expr)
+
+    repeat_comp_expr  go to state 242
+    comp_op           go to state 128
+
+
+State 185
+
+  117 repeat_expr: T_bitwiseor xor_expr . repeat_expr
+
+    T_bitwiseor  shift, and go to state 129
+
+    $default  reduce using rule 116 (repeat_expr)
+
+    repeat_expr  go to state 243
+
+
+State 186
+
+  120 repeat_xor_expr: T_bitwisexor and_expr . repeat_xor_expr
+
+    T_bitwisexor  shift, and go to state 131
+
+    $default  reduce using rule 119 (repeat_xor_expr)
+
+    repeat_xor_expr  go to state 244
+
+
+State 187
+
+  123 repeat_and_expr: T_bitwiseand shift_expr . repeat_and_expr
+
+    T_bitwiseand  shift, and go to state 133
+
+    $default  reduce using rule 122 (repeat_and_expr)
+
+    repeat_and_expr  go to state 245
+
+
+State 188
+
+  126 repeat_shift_expr: T_leftshift arith_expr . repeat_shift_expr
+
+    T_leftshift   shift, and go to state 135
+    T_rightshift  shift, and go to state 136
+
+    $default  reduce using rule 125 (repeat_shift_expr)
+
+    repeat_shift_expr  go to state 246
+
+
+State 189
+
+  127 repeat_shift_expr: T_rightshift arith_expr . repeat_shift_expr
+
+    T_leftshift   shift, and go to state 135
+    T_rightshift  shift, and go to state 136
+
+    $default  reduce using rule 125 (repeat_shift_expr)
+
+    repeat_shift_expr  go to state 247
+
+
+State 190
+
+  130 last_arith_expr: T_plus term . last_arith_expr
+
+    T_plus   shift, and go to state 138
+    T_minus  shift, and go to state 139
+
+    T_plus    [reduce using rule 129 (last_arith_expr)]
+    T_minus   [reduce using rule 129 (last_arith_expr)]
+    $default  reduce using rule 129 (last_arith_expr)
+
+    last_arith_expr  go to state 248
+
+
+State 191
+
+  131 last_arith_expr: T_minus term . last_arith_expr
+
+    T_plus   shift, and go to state 138
+    T_minus  shift, and go to state 139
+
+    T_plus    [reduce using rule 129 (last_arith_expr)]
+    T_minus   [reduce using rule 129 (last_arith_expr)]
+    $default  reduce using rule 129 (last_arith_expr)
+
+    last_arith_expr  go to state 249
+
+
+State 192
+
+  134 last_term: T_star factor . last_term
+
+    T_star           shift, and go to state 141
+    T_divide         shift, and go to state 142
+    T_mod            shift, and go to state 143
+    T_double_divide  shift, and go to state 144
+
+    T_star    [reduce using rule 133 (last_term)]
+    $default  reduce using rule 133 (last_term)
+
+    last_term  go to state 250
+
+
+State 193
+
+  135 last_term: T_divide factor . last_term
+
+    T_star           shift, and go to state 141
+    T_divide         shift, and go to state 142
+    T_mod            shift, and go to state 143
+    T_double_divide  shift, and go to state 144
+
+    T_star    [reduce using rule 133 (last_term)]
+    $default  reduce using rule 133 (last_term)
+
+    last_term  go to state 251
+
+
+State 194
+
+  136 last_term: T_mod factor . last_term
+
+    T_star           shift, and go to state 141
+    T_divide         shift, and go to state 142
+    T_mod            shift, and go to state 143
+    T_double_divide  shift, and go to state 144
+
+    T_star    [reduce using rule 133 (last_term)]
+    $default  reduce using rule 133 (last_term)
+
+    last_term  go to state 252
+
+
+State 195
+
+  137 last_term: T_double_divide factor . last_term
+
+    T_star           shift, and go to state 141
+    T_divide         shift, and go to state 142
+    T_mod            shift, and go to state 143
+    T_double_divide  shift, and go to state 144
+
+    T_star    [reduce using rule 133 (last_term)]
+    $default  reduce using rule 133 (last_term)
+
+    last_term  go to state 253
+
+
+State 196
+
+  144 optional_factor: T_double_star factor .
+
+    $default  reduce using rule 144 (optional_factor)
+
+
+State 197
+
+  199 argument: T_star . test
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    test        go to state 254
+    or_test     go to state 48
+    and_test    go to state 49
+    not_test    go to state 50
+    comparison  go to state 51
+    expr        go to state 53
+    xor_expr    go to state 54
+    and_expr    go to state 55
+    shift_expr  go to state 56
+    arith_expr  go to state 57
+    term        go to state 58
+    factor      go to state 59
+    power       go to state 60
+    atom_expr   go to state 61
+    atom        go to state 62
+
+
+State 198
+
+  198 argument: T_double_star . test
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    test        go to state 255
+    or_test     go to state 48
+    and_test    go to state 49
+    not_test    go to state 50
+    comparison  go to state 51
+    expr        go to state 53
+    xor_expr    go to state 54
+    and_expr    go to state 55
+    shift_expr  go to state 56
+    arith_expr  go to state 57
+    term        go to state 58
+    factor      go to state 59
+    power       go to state 60
+    atom_expr   go to state 61
+    atom        go to state 62
+
+
+State 199
+
+  197 argument: test . T_eq test
+
+    T_eq  shift, and go to state 256
+
+
+State 200
+
+  169 trailer: T_Lparan optional_arglist . T_Rparan
+
+    T_Rparan  shift, and go to state 257
+
+
+State 201
+
+  173 optional_arglist: arglist .
+
+    $default  reduce using rule 173 (optional_arglist)
+
+
+State 202
+
+  194 arglist: argument . repeat_argument optional_comma
+
+    T_comma  shift, and go to state 258
+
+    T_comma   [reduce using rule 195 (repeat_argument)]
+    $default  reduce using rule 195 (repeat_argument)
+
+    repeat_argument  go to state 259
+
+
+State 203
+
+  171 trailer: T_dot T_name .
+
+    $default  reduce using rule 171 (trailer)
+
+
+State 204
+
+  177 subscript: test .
+  180 optional_test: test .
+
+    T_colon   reduce using rule 180 (optional_test)
+    $default  reduce using rule 177 (subscript)
+
+
+State 205
+
+  170 trailer: T_squarebleft subscriptlist . T_squarebright
+
+    T_squarebright  shift, and go to state 260
+
+
+State 206
+
+  174 subscriptlist: subscript . repeat_subscript optional_comma
+
+    T_comma  shift, and go to state 261
+
+    T_comma   [reduce using rule 175 (repeat_subscript)]
+    $default  reduce using rule 175 (repeat_subscript)
+
+    repeat_subscript  go to state 262
+
+
+State 207
+
+  178 subscript: optional_test . T_colon optional_test optional_sliceop
+
+    T_colon  shift, and go to state 263
+
+
+State 208
+
+  147 repeat_trailer: trailer repeat_trailer .
+
+    $default  reduce using rule 147 (repeat_trailer)
+
+
+State 209
+
+  188 last_exprlist: T_comma first_exprlist . last_exprlist
+
+    T_comma  shift, and go to state 154
+
+    T_comma   [reduce using rule 187 (last_exprlist)]
+    $default  reduce using rule 187 (last_exprlist)
+
+    last_exprlist  go to state 264
+
+
+State 210
+
+  190 optional_comma: T_comma .
+
+    $default  reduce using rule 190 (optional_comma)
+
+
+State 211
+
+  184 exprlist: first_exprlist last_exprlist optional_comma .
+
+    $default  reduce using rule 184 (exprlist)
+
+
+State 212
+
+  193 repeat_test: T_comma test . repeat_test
+
+    T_comma  shift, and go to state 156
+
+    T_comma   [reduce using rule 192 (repeat_test)]
+    $default  reduce using rule 192 (repeat_test)
+
+    repeat_test  go to state 265
+
+
+State 213
+
+  191 testlist: test repeat_test optional_comma .
+
+    $default  reduce using rule 191 (testlist)
+
+
+State 214
+
+   67 optional_dotted_name: T_dot dotted_name .
+
+    $default  reduce using rule 67 (optional_dotted_name)
+
+
+State 215
+
+   64 end_dotted_as_names: T_comma dotted_as_name . end_dotted_as_names
+
+    T_comma  shift, and go to state 160
+
+    $default  reduce using rule 63 (end_dotted_as_names)
+
+    end_dotted_as_names  go to state 266
+
+
+State 216
+
+   57 optional_t_name: T_as T_name .
+
+    $default  reduce using rule 57 (optional_t_name)
+
+
+State 217
+
+   55 import_as_name: T_name . optional_t_name
+
+    T_as  shift, and go to state 162
+
+    $default  reduce using rule 56 (optional_t_name)
+
+    optional_t_name  go to state 267
+
+
+State 218
+
+   52 end_import_from: T_star .
+
+    $default  reduce using rule 52 (end_import_from)
+
+
+State 219
+
+   53 end_import_from: T_Lparan . import_as_names T_Rparan
+
+    T_name  shift, and go to state 217
+
+    import_as_name   go to state 221
+    import_as_names  go to state 268
+
+
+State 220
+
+   51 import_from: T_from dotted_name T_import end_import_from .
+
+    $default  reduce using rule 51 (import_from)
+
+
+State 221
+
+   59 import_as_names: import_as_name . end_import_as_names
+
+    T_comma  shift, and go to state 269
+
+    $default  reduce using rule 60 (end_import_as_names)
+
+    end_import_as_names  go to state 270
+
+
+State 222
+
+   54 end_import_from: import_as_names .
+
+    $default  reduce using rule 54 (end_import_from)
+
+
+State 223
+
+  167 end_testlist_comp: test . repeat_testlist_comp
+
+    T_comma  shift, and go to state 166
+
+    T_comma   [reduce using rule 165 (repeat_testlist_comp)]
+    $default  reduce using rule 165 (repeat_testlist_comp)
+
+    repeat_testlist_comp  go to state 271
+
+
+State 224
+
+  168 end_testlist_comp: star_expr . repeat_testlist_comp
+
+    T_comma  shift, and go to state 166
+
+    T_comma   [reduce using rule 165 (repeat_testlist_comp)]
+    $default  reduce using rule 165 (repeat_testlist_comp)
+
+    repeat_testlist_comp  go to state 272
+
+
+State 225
+
+  166 repeat_testlist_comp: T_comma end_testlist_comp .
+
+    $default  reduce using rule 166 (repeat_testlist_comp)
+
+
+State 226
+
+  164 last_testlist_comp: repeat_testlist_comp optional_comma .
+
+    $default  reduce using rule 164 (last_testlist_comp)
+
+
+State 227
+
+   87 suite: T_newline . T_indent stmt repeat_stmt T_dedent
+
+    T_indent  shift, and go to state 273
+
+
+State 228
+
+   86 suite: simple_stmt .
+
+    $default  reduce using rule 86 (suite)
+
+
+State 229
+
+   80 if_stmt: T_if test T_colon suite . elif_stmt optional_else
+
+    T_elif  shift, and go to state 274
+
+    $default  reduce using rule 81 (elif_stmt)
+
+    elif_stmt  go to state 275
+
+
+State 230
+
+   83 for_stmt: T_for exprlist T_in testlist . T_colon suite optional_else
+
+    T_colon  shift, and go to state 276
+
+
+State 231
+
+   75 typedargslist: T_name . optional_eq_test repeat_optional_eq_test
+
+    T_eq  shift, and go to state 277
+
+    $default  reduce using rule 76 (optional_eq_test)
+
+    optional_eq_test  go to state 278
+
+
+State 232
+
+   72 parameters: T_Lparan optional_typedargslist . T_Rparan
+
+    T_Rparan  shift, and go to state 279
+
+
+State 233
+
+   74 optional_typedargslist: typedargslist .
+
+    $default  reduce using rule 74 (optional_typedargslist)
+
+
+State 234
+
+   71 funcdef: T_def T_name parameters T_colon . suite
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_newline      shift, and go to state 227
+    T_del          shift, and go to state 6
+    T_pass         shift, and go to state 7
+    T_break        shift, and go to state 8
+    T_continue     shift, and go to state 9
+    T_return       shift, and go to state 10
+    T_import       shift, and go to state 11
+    T_from         shift, and go to state 12
+    T_star         shift, and go to state 13
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    simple_stmt               go to state 228
+    small_stmt                go to state 30
+    expr_stmt                 go to state 31
+    testlist_star_expr        go to state 32
+    first_testlist_star_expr  go to state 33
+    del_stmt                  go to state 34
+    pass_stmt                 go to state 35
+    flow_stmt                 go to state 36
+    break_stmt                go to state 37
+    continue_stmt             go to state 38
+    return_stmt               go to state 39
+    import_stmt               go to state 40
+    import_name               go to state 41
+    import_from               go to state 42
+    suite                     go to state 280
+    test                      go to state 47
+    or_test                   go to state 48
+    and_test                  go to state 49
+    not_test                  go to state 50
+    comparison                go to state 51
+    star_expr                 go to state 52
+    expr                      go to state 53
+    xor_expr                  go to state 54
+    and_expr                  go to state 55
+    shift_expr                go to state 56
+    arith_expr                go to state 57
+    term                      go to state 58
+    factor                    go to state 59
+    power                     go to state 60
+    atom_expr                 go to state 61
+    atom                      go to state 62
+
+
+State 235
+
+    9 next_simple_stmt: T_semi_colon small_stmt next_simple_stmt .
+
+    $default  reduce using rule 9 (next_simple_stmt)
+
+
+State 236
+
+   22 last_expr_stmt: T_eq testlist_star_expr last_expr_stmt .
+
+    $default  reduce using rule 22 (last_expr_stmt)
+
+
+State 237
+
+   29 end_testlist_star_expr: test last_testlist_star_expr .
+
+    $default  reduce using rule 29 (end_testlist_star_expr)
+
+
+State 238
+
+   30 end_testlist_star_expr: star_expr last_testlist_star_expr .
+
+    $default  reduce using rule 30 (end_testlist_star_expr)
+
+
+State 239
+
+   92 optional_if_else: T_if or_test T_else . test
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    test        go to state 281
+    or_test     go to state 48
+    and_test    go to state 49
+    not_test    go to state 50
+    comparison  go to state 51
+    expr        go to state 53
+    xor_expr    go to state 54
+    and_expr    go to state 55
+    shift_expr  go to state 56
+    arith_expr  go to state 57
+    term        go to state 58
+    factor      go to state 59
+    power       go to state 60
+    atom_expr   go to state 61
+    atom        go to state 62
+
+
+State 240
+
+   95 repeat_or_test: T_or and_test repeat_or_test .
+
+    $default  reduce using rule 95 (repeat_or_test)
+
+
+State 241
+
+   98 repeat_and_test: T_and not_test repeat_and_test .
+
+    $default  reduce using rule 98 (repeat_and_test)
+
+
+State 242
+
+  103 repeat_comp_expr: comp_op expr repeat_comp_expr .
+
+    $default  reduce using rule 103 (repeat_comp_expr)
+
+
+State 243
+
+  117 repeat_expr: T_bitwiseor xor_expr repeat_expr .
+
+    $default  reduce using rule 117 (repeat_expr)
+
+
+State 244
+
+  120 repeat_xor_expr: T_bitwisexor and_expr repeat_xor_expr .
+
+    $default  reduce using rule 120 (repeat_xor_expr)
+
+
+State 245
+
+  123 repeat_and_expr: T_bitwiseand shift_expr repeat_and_expr .
+
+    $default  reduce using rule 123 (repeat_and_expr)
+
+
+State 246
+
+  126 repeat_shift_expr: T_leftshift arith_expr repeat_shift_expr .
+
+    $default  reduce using rule 126 (repeat_shift_expr)
+
+
+State 247
+
+  127 repeat_shift_expr: T_rightshift arith_expr repeat_shift_expr .
+
+    $default  reduce using rule 127 (repeat_shift_expr)
+
+
+State 248
+
+  130 last_arith_expr: T_plus term last_arith_expr .
+
+    $default  reduce using rule 130 (last_arith_expr)
+
+
+State 249
+
+  131 last_arith_expr: T_minus term last_arith_expr .
+
+    $default  reduce using rule 131 (last_arith_expr)
+
+
+State 250
+
+  134 last_term: T_star factor last_term .
+
+    $default  reduce using rule 134 (last_term)
+
+
+State 251
+
+  135 last_term: T_divide factor last_term .
+
+    $default  reduce using rule 135 (last_term)
+
+
+State 252
+
+  136 last_term: T_mod factor last_term .
+
+    $default  reduce using rule 136 (last_term)
+
+
+State 253
+
+  137 last_term: T_double_divide factor last_term .
+
+    $default  reduce using rule 137 (last_term)
+
+
+State 254
+
+  199 argument: T_star test .
+
+    $default  reduce using rule 199 (argument)
+
+
+State 255
+
+  198 argument: T_double_star test .
+
+    $default  reduce using rule 198 (argument)
+
+
+State 256
+
+  197 argument: test T_eq . test
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    test        go to state 282
+    or_test     go to state 48
+    and_test    go to state 49
+    not_test    go to state 50
+    comparison  go to state 51
+    expr        go to state 53
+    xor_expr    go to state 54
+    and_expr    go to state 55
+    shift_expr  go to state 56
+    arith_expr  go to state 57
+    term        go to state 58
+    factor      go to state 59
+    power       go to state 60
+    atom_expr   go to state 61
+    atom        go to state 62
+
+
+State 257
+
+  169 trailer: T_Lparan optional_arglist T_Rparan .
+
+    $default  reduce using rule 169 (trailer)
+
+
+State 258
+
+  196 repeat_argument: T_comma . argument repeat_argument
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_star         shift, and go to state 197
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_double_star  shift, and go to state 198
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    test        go to state 199
+    or_test     go to state 48
+    and_test    go to state 49
+    not_test    go to state 50
+    comparison  go to state 51
+    expr        go to state 53
+    xor_expr    go to state 54
+    and_expr    go to state 55
+    shift_expr  go to state 56
+    arith_expr  go to state 57
+    term        go to state 58
+    factor      go to state 59
+    power       go to state 60
+    atom_expr   go to state 61
+    atom        go to state 62
+    argument    go to state 283
+
+
+State 259
+
+  194 arglist: argument repeat_argument . optional_comma
+
+    T_comma  shift, and go to state 210
+
+    $default  reduce using rule 189 (optional_comma)
+
+    optional_comma  go to state 284
+
+
+State 260
+
+  170 trailer: T_squarebleft subscriptlist T_squarebright .
+
+    $default  reduce using rule 170 (trailer)
+
+
+State 261
+
+  176 repeat_subscript: T_comma . subscript repeat_subscript
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    $default  reduce using rule 179 (optional_test)
+
+    test           go to state 204
+    or_test        go to state 48
+    and_test       go to state 49
+    not_test       go to state 50
+    comparison     go to state 51
+    expr           go to state 53
+    xor_expr       go to state 54
+    and_expr       go to state 55
+    shift_expr     go to state 56
+    arith_expr     go to state 57
+    term           go to state 58
+    factor         go to state 59
+    power          go to state 60
+    atom_expr      go to state 61
+    atom           go to state 62
+    subscript      go to state 285
+    optional_test  go to state 207
+
+
+State 262
+
+  174 subscriptlist: subscript repeat_subscript . optional_comma
+
+    T_comma  shift, and go to state 210
+
+    $default  reduce using rule 189 (optional_comma)
+
+    optional_comma  go to state 286
+
+
+State 263
+
+  178 subscript: optional_test T_colon . optional_test optional_sliceop
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    $default  reduce using rule 179 (optional_test)
+
+    test           go to state 287
+    or_test        go to state 48
+    and_test       go to state 49
+    not_test       go to state 50
+    comparison     go to state 51
+    expr           go to state 53
+    xor_expr       go to state 54
+    and_expr       go to state 55
+    shift_expr     go to state 56
+    arith_expr     go to state 57
+    term           go to state 58
+    factor         go to state 59
+    power          go to state 60
+    atom_expr      go to state 61
+    atom           go to state 62
+    optional_test  go to state 288
+
+
+State 264
+
+  188 last_exprlist: T_comma first_exprlist last_exprlist .
+
+    $default  reduce using rule 188 (last_exprlist)
+
+
+State 265
+
+  193 repeat_test: T_comma test repeat_test .
+
+    $default  reduce using rule 193 (repeat_test)
+
+
+State 266
+
+   64 end_dotted_as_names: T_comma dotted_as_name end_dotted_as_names .
+
+    $default  reduce using rule 64 (end_dotted_as_names)
+
+
+State 267
+
+   55 import_as_name: T_name optional_t_name .
+
+    $default  reduce using rule 55 (import_as_name)
+
+
+State 268
+
+   53 end_import_from: T_Lparan import_as_names . T_Rparan
+
+    T_Rparan  shift, and go to state 289
+
+
+State 269
+
+   61 end_import_as_names: T_comma . import_as_name end_import_as_names
+
+    T_name  shift, and go to state 217
+
+    import_as_name  go to state 290
+
+
+State 270
+
+   59 import_as_names: import_as_name end_import_as_names .
+
+    $default  reduce using rule 59 (import_as_names)
+
+
+State 271
+
+  167 end_testlist_comp: test repeat_testlist_comp .
+
+    $default  reduce using rule 167 (end_testlist_comp)
+
+
+State 272
+
+  168 end_testlist_comp: star_expr repeat_testlist_comp .
+
+    $default  reduce using rule 168 (end_testlist_comp)
+
+
+State 273
+
+   87 suite: T_newline T_indent . stmt repeat_stmt T_dedent
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_del          shift, and go to state 6
+    T_pass         shift, and go to state 7
+    T_break        shift, and go to state 8
+    T_continue     shift, and go to state 9
+    T_return       shift, and go to state 10
+    T_import       shift, and go to state 11
+    T_from         shift, and go to state 12
+    T_star         shift, and go to state 13
+    T_Lparan       shift, and go to state 14
+    T_if           shift, and go to state 15
+    T_for          shift, and go to state 16
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+    T_def          shift, and go to state 26
+
+    stmt                      go to state 291
+    simple_stmt               go to state 29
+    small_stmt                go to state 30
+    expr_stmt                 go to state 31
+    testlist_star_expr        go to state 32
+    first_testlist_star_expr  go to state 33
+    del_stmt                  go to state 34
+    pass_stmt                 go to state 35
+    flow_stmt                 go to state 36
+    break_stmt                go to state 37
+    continue_stmt             go to state 38
+    return_stmt               go to state 39
+    import_stmt               go to state 40
+    import_name               go to state 41
+    import_from               go to state 42
+    compound_stmt             go to state 43
+    funcdef                   go to state 44
+    if_stmt                   go to state 45
+    for_stmt                  go to state 46
+    test                      go to state 47
+    or_test                   go to state 48
+    and_test                  go to state 49
+    not_test                  go to state 50
+    comparison                go to state 51
+    star_expr                 go to state 52
+    expr                      go to state 53
+    xor_expr                  go to state 54
+    and_expr                  go to state 55
+    shift_expr                go to state 56
+    arith_expr                go to state 57
+    term                      go to state 58
+    factor                    go to state 59
+    power                     go to state 60
+    atom_expr                 go to state 61
+    atom                      go to state 62
+
+
+State 274
+
+   82 elif_stmt: T_elif . test T_colon suite elif_stmt
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    test        go to state 292
+    or_test     go to state 48
+    and_test    go to state 49
+    not_test    go to state 50
+    comparison  go to state 51
+    expr        go to state 53
+    xor_expr    go to state 54
+    and_expr    go to state 55
+    shift_expr  go to state 56
+    arith_expr  go to state 57
+    term        go to state 58
+    factor      go to state 59
+    power       go to state 60
+    atom_expr   go to state 61
+    atom        go to state 62
+
+
+State 275
+
+   80 if_stmt: T_if test T_colon suite elif_stmt . optional_else
+
+    T_else  shift, and go to state 293
+
+    $default  reduce using rule 84 (optional_else)
+
+    optional_else  go to state 294
+
+
+State 276
+
+   83 for_stmt: T_for exprlist T_in testlist T_colon . suite optional_else
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_newline      shift, and go to state 227
+    T_del          shift, and go to state 6
+    T_pass         shift, and go to state 7
+    T_break        shift, and go to state 8
+    T_continue     shift, and go to state 9
+    T_return       shift, and go to state 10
+    T_import       shift, and go to state 11
+    T_from         shift, and go to state 12
+    T_star         shift, and go to state 13
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    simple_stmt               go to state 228
+    small_stmt                go to state 30
+    expr_stmt                 go to state 31
+    testlist_star_expr        go to state 32
+    first_testlist_star_expr  go to state 33
+    del_stmt                  go to state 34
+    pass_stmt                 go to state 35
+    flow_stmt                 go to state 36
+    break_stmt                go to state 37
+    continue_stmt             go to state 38
+    return_stmt               go to state 39
+    import_stmt               go to state 40
+    import_name               go to state 41
+    import_from               go to state 42
+    suite                     go to state 295
+    test                      go to state 47
+    or_test                   go to state 48
+    and_test                  go to state 49
+    not_test                  go to state 50
+    comparison                go to state 51
+    star_expr                 go to state 52
+    expr                      go to state 53
+    xor_expr                  go to state 54
+    and_expr                  go to state 55
+    shift_expr                go to state 56
+    arith_expr                go to state 57
+    term                      go to state 58
+    factor                    go to state 59
+    power                     go to state 60
+    atom_expr                 go to state 61
+    atom                      go to state 62
+
+
+State 277
+
+   77 optional_eq_test: T_eq . test
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    test        go to state 296
+    or_test     go to state 48
+    and_test    go to state 49
+    not_test    go to state 50
+    comparison  go to state 51
+    expr        go to state 53
+    xor_expr    go to state 54
+    and_expr    go to state 55
+    shift_expr  go to state 56
+    arith_expr  go to state 57
+    term        go to state 58
+    factor      go to state 59
+    power       go to state 60
+    atom_expr   go to state 61
+    atom        go to state 62
+
+
+State 278
+
+   75 typedargslist: T_name optional_eq_test . repeat_optional_eq_test
+
+    T_comma  shift, and go to state 297
+
+    $default  reduce using rule 78 (repeat_optional_eq_test)
+
+    repeat_optional_eq_test  go to state 298
+
+
+State 279
+
+   72 parameters: T_Lparan optional_typedargslist T_Rparan .
+
+    $default  reduce using rule 72 (parameters)
+
+
+State 280
+
+   71 funcdef: T_def T_name parameters T_colon suite .
+
+    $default  reduce using rule 71 (funcdef)
+
+
+State 281
+
+   92 optional_if_else: T_if or_test T_else test .
+
+    $default  reduce using rule 92 (optional_if_else)
+
+
+State 282
+
+  197 argument: test T_eq test .
+
+    $default  reduce using rule 197 (argument)
+
+
+State 283
+
+  196 repeat_argument: T_comma argument . repeat_argument
+
+    T_comma  shift, and go to state 258
+
+    T_comma   [reduce using rule 195 (repeat_argument)]
+    $default  reduce using rule 195 (repeat_argument)
+
+    repeat_argument  go to state 299
+
+
+State 284
+
+  194 arglist: argument repeat_argument optional_comma .
+
+    $default  reduce using rule 194 (arglist)
+
+
+State 285
+
+  176 repeat_subscript: T_comma subscript . repeat_subscript
+
+    T_comma  shift, and go to state 261
+
+    T_comma   [reduce using rule 175 (repeat_subscript)]
+    $default  reduce using rule 175 (repeat_subscript)
+
+    repeat_subscript  go to state 300
+
+
+State 286
+
+  174 subscriptlist: subscript repeat_subscript optional_comma .
+
+    $default  reduce using rule 174 (subscriptlist)
+
+
+State 287
+
+  180 optional_test: test .
+
+    $default  reduce using rule 180 (optional_test)
+
+
+State 288
+
+  178 subscript: optional_test T_colon optional_test . optional_sliceop
+
+    T_colon  shift, and go to state 301
+
+    $default  reduce using rule 181 (optional_sliceop)
+
+    optional_sliceop  go to state 302
+    sliceop           go to state 303
+
+
+State 289
+
+   53 end_import_from: T_Lparan import_as_names T_Rparan .
+
+    $default  reduce using rule 53 (end_import_from)
+
+
+State 290
+
+   61 end_import_as_names: T_comma import_as_name . end_import_as_names
+
+    T_comma  shift, and go to state 269
+
+    $default  reduce using rule 60 (end_import_as_names)
+
+    end_import_as_names  go to state 304
+
+
+State 291
+
+   87 suite: T_newline T_indent stmt . repeat_stmt T_dedent
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_del          shift, and go to state 6
+    T_pass         shift, and go to state 7
+    T_break        shift, and go to state 8
+    T_continue     shift, and go to state 9
+    T_return       shift, and go to state 10
+    T_import       shift, and go to state 11
+    T_from         shift, and go to state 12
+    T_star         shift, and go to state 13
+    T_Lparan       shift, and go to state 14
+    T_if           shift, and go to state 15
+    T_for          shift, and go to state 16
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+    T_def          shift, and go to state 26
+
+    $default  reduce using rule 88 (repeat_stmt)
+
+    stmt                      go to state 305
+    simple_stmt               go to state 29
+    small_stmt                go to state 30
+    expr_stmt                 go to state 31
+    testlist_star_expr        go to state 32
+    first_testlist_star_expr  go to state 33
+    del_stmt                  go to state 34
+    pass_stmt                 go to state 35
+    flow_stmt                 go to state 36
+    break_stmt                go to state 37
+    continue_stmt             go to state 38
+    return_stmt               go to state 39
+    import_stmt               go to state 40
+    import_name               go to state 41
+    import_from               go to state 42
+    compound_stmt             go to state 43
+    funcdef                   go to state 44
+    if_stmt                   go to state 45
+    for_stmt                  go to state 46
+    repeat_stmt               go to state 306
+    test                      go to state 47
+    or_test                   go to state 48
+    and_test                  go to state 49
+    not_test                  go to state 50
+    comparison                go to state 51
+    star_expr                 go to state 52
+    expr                      go to state 53
+    xor_expr                  go to state 54
+    and_expr                  go to state 55
+    shift_expr                go to state 56
+    arith_expr                go to state 57
+    term                      go to state 58
+    factor                    go to state 59
+    power                     go to state 60
+    atom_expr                 go to state 61
+    atom                      go to state 62
+
+
+State 292
+
+   82 elif_stmt: T_elif test . T_colon suite elif_stmt
+
+    T_colon  shift, and go to state 307
+
+
+State 293
+
+   85 optional_else: T_else . T_colon suite
+
+    T_colon  shift, and go to state 308
+
+
+State 294
+
+   80 if_stmt: T_if test T_colon suite elif_stmt optional_else .
+
+    $default  reduce using rule 80 (if_stmt)
+
+
+State 295
+
+   83 for_stmt: T_for exprlist T_in testlist T_colon suite . optional_else
+
+    T_else  shift, and go to state 293
+
+    $default  reduce using rule 84 (optional_else)
+
+    optional_else  go to state 309
+
+
+State 296
+
+   77 optional_eq_test: T_eq test .
+
+    $default  reduce using rule 77 (optional_eq_test)
+
+
+State 297
+
+   79 repeat_optional_eq_test: T_comma . T_name optional_eq_test repeat_optional_eq_test
+
+    T_name  shift, and go to state 310
+
+
+State 298
+
+   75 typedargslist: T_name optional_eq_test repeat_optional_eq_test .
+
+    $default  reduce using rule 75 (typedargslist)
+
+
+State 299
+
+  196 repeat_argument: T_comma argument repeat_argument .
+
+    $default  reduce using rule 196 (repeat_argument)
+
+
+State 300
+
+  176 repeat_subscript: T_comma subscript repeat_subscript .
+
+    $default  reduce using rule 176 (repeat_subscript)
+
+
+State 301
+
+  183 sliceop: T_colon . optional_test
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    $default  reduce using rule 179 (optional_test)
+
+    test           go to state 287
+    or_test        go to state 48
+    and_test       go to state 49
+    not_test       go to state 50
+    comparison     go to state 51
+    expr           go to state 53
+    xor_expr       go to state 54
+    and_expr       go to state 55
+    shift_expr     go to state 56
+    arith_expr     go to state 57
+    term           go to state 58
+    factor         go to state 59
+    power          go to state 60
+    atom_expr      go to state 61
+    atom           go to state 62
+    optional_test  go to state 311
+
+
+State 302
+
+  178 subscript: optional_test T_colon optional_test optional_sliceop .
+
+    $default  reduce using rule 178 (subscript)
+
+
+State 303
+
+  182 optional_sliceop: sliceop .
+
+    $default  reduce using rule 182 (optional_sliceop)
+
+
+State 304
+
+   61 end_import_as_names: T_comma import_as_name end_import_as_names .
+
+    $default  reduce using rule 61 (end_import_as_names)
+
+
+State 305
+
+   89 repeat_stmt: stmt . repeat_stmt
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_del          shift, and go to state 6
+    T_pass         shift, and go to state 7
+    T_break        shift, and go to state 8
+    T_continue     shift, and go to state 9
+    T_return       shift, and go to state 10
+    T_import       shift, and go to state 11
+    T_from         shift, and go to state 12
+    T_star         shift, and go to state 13
+    T_Lparan       shift, and go to state 14
+    T_if           shift, and go to state 15
+    T_for          shift, and go to state 16
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+    T_def          shift, and go to state 26
+
+    $default  reduce using rule 88 (repeat_stmt)
+
+    stmt                      go to state 305
+    simple_stmt               go to state 29
+    small_stmt                go to state 30
+    expr_stmt                 go to state 31
+    testlist_star_expr        go to state 32
+    first_testlist_star_expr  go to state 33
+    del_stmt                  go to state 34
+    pass_stmt                 go to state 35
+    flow_stmt                 go to state 36
+    break_stmt                go to state 37
+    continue_stmt             go to state 38
+    return_stmt               go to state 39
+    import_stmt               go to state 40
+    import_name               go to state 41
+    import_from               go to state 42
+    compound_stmt             go to state 43
+    funcdef                   go to state 44
+    if_stmt                   go to state 45
+    for_stmt                  go to state 46
+    repeat_stmt               go to state 312
+    test                      go to state 47
+    or_test                   go to state 48
+    and_test                  go to state 49
+    not_test                  go to state 50
+    comparison                go to state 51
+    star_expr                 go to state 52
+    expr                      go to state 53
+    xor_expr                  go to state 54
+    and_expr                  go to state 55
+    shift_expr                go to state 56
+    arith_expr                go to state 57
+    term                      go to state 58
+    factor                    go to state 59
+    power                     go to state 60
+    atom_expr                 go to state 61
+    atom                      go to state 62
+
+
+State 306
+
+   87 suite: T_newline T_indent stmt repeat_stmt . T_dedent
+
+    T_dedent  shift, and go to state 313
+
+
+State 307
+
+   82 elif_stmt: T_elif test T_colon . suite elif_stmt
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_newline      shift, and go to state 227
+    T_del          shift, and go to state 6
+    T_pass         shift, and go to state 7
+    T_break        shift, and go to state 8
+    T_continue     shift, and go to state 9
+    T_return       shift, and go to state 10
+    T_import       shift, and go to state 11
+    T_from         shift, and go to state 12
+    T_star         shift, and go to state 13
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    simple_stmt               go to state 228
+    small_stmt                go to state 30
+    expr_stmt                 go to state 31
+    testlist_star_expr        go to state 32
+    first_testlist_star_expr  go to state 33
+    del_stmt                  go to state 34
+    pass_stmt                 go to state 35
+    flow_stmt                 go to state 36
+    break_stmt                go to state 37
+    continue_stmt             go to state 38
+    return_stmt               go to state 39
+    import_stmt               go to state 40
+    import_name               go to state 41
+    import_from               go to state 42
+    suite                     go to state 314
+    test                      go to state 47
+    or_test                   go to state 48
+    and_test                  go to state 49
+    not_test                  go to state 50
+    comparison                go to state 51
+    star_expr                 go to state 52
+    expr                      go to state 53
+    xor_expr                  go to state 54
+    and_expr                  go to state 55
+    shift_expr                go to state 56
+    arith_expr                go to state 57
+    term                      go to state 58
+    factor                    go to state 59
+    power                     go to state 60
+    atom_expr                 go to state 61
+    atom                      go to state 62
+
+
+State 308
+
+   85 optional_else: T_else T_colon . suite
+
+    T_name         shift, and go to state 1
+    T_number       shift, and go to state 2
+    T_string       shift, and go to state 3
+    T_newline      shift, and go to state 227
+    T_del          shift, and go to state 6
+    T_pass         shift, and go to state 7
+    T_break        shift, and go to state 8
+    T_continue     shift, and go to state 9
+    T_return       shift, and go to state 10
+    T_import       shift, and go to state 11
+    T_from         shift, and go to state 12
+    T_star         shift, and go to state 13
+    T_Lparan       shift, and go to state 14
+    T_not          shift, and go to state 17
+    T_plus         shift, and go to state 18
+    T_minus        shift, and go to state 19
+    T_tilde        shift, and go to state 20
+    T_squarebleft  shift, and go to state 21
+    T_ellipsis     shift, and go to state 22
+    T_none         shift, and go to state 23
+    T_true         shift, and go to state 24
+    T_false        shift, and go to state 25
+
+    simple_stmt               go to state 228
+    small_stmt                go to state 30
+    expr_stmt                 go to state 31
+    testlist_star_expr        go to state 32
+    first_testlist_star_expr  go to state 33
+    del_stmt                  go to state 34
+    pass_stmt                 go to state 35
+    flow_stmt                 go to state 36
+    break_stmt                go to state 37
+    continue_stmt             go to state 38
+    return_stmt               go to state 39
+    import_stmt               go to state 40
+    import_name               go to state 41
+    import_from               go to state 42
+    suite                     go to state 315
+    test                      go to state 47
+    or_test                   go to state 48
+    and_test                  go to state 49
+    not_test                  go to state 50
+    comparison                go to state 51
+    star_expr                 go to state 52
+    expr                      go to state 53
+    xor_expr                  go to state 54
+    and_expr                  go to state 55
+    shift_expr                go to state 56
+    arith_expr                go to state 57
+    term                      go to state 58
+    factor                    go to state 59
+    power                     go to state 60
+    atom_expr                 go to state 61
+    atom                      go to state 62
+
+
+State 309
+
+   83 for_stmt: T_for exprlist T_in testlist T_colon suite optional_else .
+
+    $default  reduce using rule 83 (for_stmt)
+
+
+State 310
+
+   79 repeat_optional_eq_test: T_comma T_name . optional_eq_test repeat_optional_eq_test
+
+    T_eq  shift, and go to state 277
+
+    $default  reduce using rule 76 (optional_eq_test)
+
+    optional_eq_test  go to state 316
+
+
+State 311
+
+  183 sliceop: T_colon optional_test .
+
+    $default  reduce using rule 183 (sliceop)
+
+
+State 312
+
+   89 repeat_stmt: stmt repeat_stmt .
+
+    $default  reduce using rule 89 (repeat_stmt)
+
+
+State 313
+
+   87 suite: T_newline T_indent stmt repeat_stmt T_dedent .
+
+    $default  reduce using rule 87 (suite)
+
+
+State 314
+
+   82 elif_stmt: T_elif test T_colon suite . elif_stmt
+
+    T_elif  shift, and go to state 274
+
+    $default  reduce using rule 81 (elif_stmt)
+
+    elif_stmt  go to state 317
+
+
+State 315
+
+   85 optional_else: T_else T_colon suite .
+
+    $default  reduce using rule 85 (optional_else)
+
+
+State 316
+
+   79 repeat_optional_eq_test: T_comma T_name optional_eq_test . repeat_optional_eq_test
+
+    T_comma  shift, and go to state 297
+
+    $default  reduce using rule 78 (repeat_optional_eq_test)
+
+    repeat_optional_eq_test  go to state 318
+
+
+State 317
+
+   82 elif_stmt: T_elif test T_colon suite elif_stmt .
+
+    $default  reduce using rule 82 (elif_stmt)
+
+
+State 318
+
+   79 repeat_optional_eq_test: T_comma T_name optional_eq_test repeat_optional_eq_test .
+
+    $default  reduce using rule 79 (repeat_optional_eq_test)
