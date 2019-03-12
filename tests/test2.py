@@ -1,3 +1,4 @@
+import numpy as np
 if a == 3:
 	pass
 t = 4

@@ -186,8 +186,8 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 10 "parser.y" /* yacc.c:1909  */
-char* text; int scope;
+#line 17 "parser.y" /* yacc.c:1909  */
+struct token_structure* data;
 
 #line 193 "y.tab.h" /* yacc.c:1909  */
 };

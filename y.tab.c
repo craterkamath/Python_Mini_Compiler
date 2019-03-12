@@ -69,7 +69,14 @@
   int yydebug = 1;
   void updateType(int, const char*, const char* );
 
-#line 73 "y.tab.c" /* yacc.c:339  */
+    typedef struct token_structure{
+  		char* name;
+  		char* type;
+  		int scope;
+  	}token_structure;
+
+
+#line 80 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -245,10 +252,10 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 10 "parser.y" /* yacc.c:355  */
-char* text; int scope;
+#line 17 "parser.y" /* yacc.c:355  */
+struct token_structure* data;
 
-#line 252 "y.tab.c" /* yacc.c:355  */
+#line 259 "y.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -265,7 +272,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 269 "y.tab.c" /* yacc.c:358  */
+#line 276 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -569,27 +576,27 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    18,    18,    19,    20,    21,    24,    25,    28,    31,
-      32,    35,    36,    37,    40,    41,    42,    43,    44,    47,
-      50,    51,    54,    55,    58,    61,    62,    65,    66,    69,
-      70,    71,    74,    75,    76,    77,    78,    79,    80,    83,
-      86,    89,    90,    91,    94,    97,   100,   103,   104,   107,
-     108,   111,   114,   117,   118,   119,   122,   125,   126,   129,
-     132,   135,   136,   139,   142,   143,   146,   149,   150,   153,
-     154,   155,   158,   161,   164,   165,   168,   171,   172,   175,
-     176,   179,   182,   183,   186,   189,   190,   193,   194,   197,
-     198,   201,   204,   205,   208,   211,   212,   215,   218,   219,
-     222,   223,   226,   229,   230,   233,   234,   235,   236,   237,
-     238,   239,   240,   241,   242,   245,   248,   251,   252,   255,
-     258,   259,   262,   265,   266,   269,   272,   273,   274,   277,
-     280,   281,   282,   285,   288,   289,   290,   291,   292,   295,
-     296,   297,   298,   302,   305,   306,   309,   312,   313,   316,
-     317,   318,   319,   320,   321,   322,   323,   324,   327,   328,
-     331,   332,   335,   338,   339,   342,   345,   346,   349,   350,
-     353,   354,   355,   358,   359,   362,   365,   366,   369,   370,
-     373,   374,   377,   378,   381,   384,   387,   388,   391,   392,
-     395,   396,   399,   402,   403,   406,   409,   410,   413,   414,
-     415
+       0,    25,    25,    26,    27,    28,    31,    32,    35,    38,
+      39,    42,    43,    44,    47,    48,    49,    50,    51,    54,
+      57,    58,    61,    62,    65,    68,    69,    72,    73,    76,
+      77,    78,    81,    82,    83,    84,    85,    86,    87,    90,
+      93,    96,    97,    98,   101,   104,   107,   110,   111,   114,
+     115,   118,   121,   124,   125,   126,   129,   132,   133,   136,
+     139,   142,   143,   146,   149,   150,   153,   156,   157,   160,
+     161,   162,   165,   168,   171,   172,   175,   178,   179,   182,
+     183,   186,   189,   190,   193,   196,   197,   200,   201,   204,
+     205,   208,   211,   212,   215,   218,   219,   222,   225,   226,
+     229,   230,   233,   236,   237,   240,   241,   242,   243,   244,
+     245,   246,   247,   248,   249,   252,   255,   258,   259,   262,
+     265,   266,   269,   272,   273,   276,   279,   280,   281,   284,
+     287,   288,   289,   292,   295,   296,   297,   298,   299,   302,
+     303,   304,   305,   309,   312,   313,   316,   319,   320,   323,
+     324,   325,   326,   327,   328,   329,   330,   331,   334,   335,
+     338,   339,   342,   345,   346,   349,   352,   353,   356,   357,
+     360,   361,   362,   365,   366,   369,   372,   373,   376,   377,
+     380,   381,   384,   385,   388,   391,   394,   395,   398,   399,
+     402,   403,   406,   409,   410,   413,   416,   417,   420,   421,
+     422
 };
 #endif
 
@@ -1636,14 +1643,32 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-        case 72:
-#line 158 "parser.y" /* yacc.c:1646  */
-    { printf("This is done!! \n"); updateType((yyvsp[-3].scope), (yyvsp[-3].text), "function_name"); }
-#line 1643 "y.tab.c" /* yacc.c:1646  */
+        case 56:
+#line 129 "parser.y" /* yacc.c:1646  */
+    {updateType((yyvsp[-1].data->scope), (yyvsp[-1].data->name), "package_name"); }
+#line 1650 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 58:
+#line 133 "parser.y" /* yacc.c:1646  */
+    {updateType((yyvsp[0].data->scope), (yyvsp[0].data->name), "package_alias"); }
+#line 1656 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 66:
+#line 153 "parser.y" /* yacc.c:1646  */
+    {updateType((yyvsp[-1].data->scope), (yyvsp[-1].data->name), "package_name"); }
+#line 1662 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 72:
+#line 165 "parser.y" /* yacc.c:1646  */
+    {updateType((yyvsp[-3].data->scope), (yyvsp[-3].data->name), "function_name"); }
+#line 1668 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1647 "y.tab.c" /* yacc.c:1646  */
+#line 1672 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires

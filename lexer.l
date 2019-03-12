@@ -8,6 +8,12 @@
 
 	extern YYSTYPE yylval;
 
+	  typedef struct token_structure{
+			char* name;
+			char* type;
+			int scope;
+		}token_structure;
+
 
 	STACK indent;
 	int pointer=0;
@@ -22,6 +28,7 @@
 		char* storage;  	// Storage
 		UT_hash_handle hh;	//Makes this structure hashable  
 	} symbol_node;
+
 
    symbol_node* hash_table[1000];
    char* p;
@@ -46,7 +53,7 @@
 
    void updateType(int scope,char* name, char* type){
    		symbol_node* temp = NULL;
-   		printf("Inside Function\n");
+   		//printf("Inside Function\n");
    		HASH_FIND_STR(hash_table[scope], name, temp);
    		if(temp != NULL)
    			strcpy(temp->type, type);
@@ -119,8 +126,8 @@ digit [0-9]
 "break"                             {fprintf(yyout, "%s", yytext);return T_break;}
 "continue"                          {fprintf(yyout, "%s", yytext);return T_continue;}
 "return"                            {fprintf(yyout, "%s", yytext);return T_return;}
-'import'                            {fprintf(yyout, "%s", yytext);printf("Matched Import"); return T_import;}
-"from"                              {fprintf(yyout, "%s", yytext);printf("Matched From"); return T_from;}
+"import"                            {fprintf(yyout, "%s", yytext);printf("Matched Import\n"); return T_import;}
+"from"                              {fprintf(yyout, "%s", yytext);printf("Matched From\n"); return T_from;}
 "*"                                 {fprintf(yyout, "%s", yytext);return T_star;}
 "("                                 {fprintf(yyout, "%s", yytext);return T_Lparan;}
 ")"                                 {fprintf(yyout, "%s", yytext);return T_Rparan;}
@@ -166,7 +173,7 @@ digit [0-9]
 " "+                                {fprintf(yyout, " ");/*Extra Whitespace*/}
 ({letter}|_)({letter}|_|{digit})*   {
                                        fprintf(yyout, "%s", yytext);
-                                       printf("Matched %s\n", yytext);
+                                       printf("Matched : %s\n", yytext);
                                        int scope = peek(&indent);
                                        char* variable_name = yytext;
                                        symbol_node* temp = NULL;
@@ -189,11 +196,10 @@ digit [0-9]
 											temp->line_no_used = yylineno;
 										}
 										//printf("yytext: %s \n", yytext);
-										p=(char *)malloc(strlen(yytext)+1 * sizeof(char));
-										strcpy(p, yytext);
-										yylval.text = strdup(p);
-										yylval.scope = scope;
-										printf("Finished Sending %s %d %s\n", yytext, yylval.scope,  yylval.text);
+										yylval.data = (struct token_structure*)malloc(sizeof(struct token_structure));
+										yylval.data->scope = scope;
+										yylval.data->name=strdup(yytext);
+										//printf("Finished Sending %s %d %s\n", yytext, yylval.data->scope,  yylval.data->name);
                                        return T_name;
                                     }
 {digit}+                            {fprintf(yyout, "%s", yytext);printf("Found a number\n"); return T_number;}
