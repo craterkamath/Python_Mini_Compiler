@@ -1,16 +1,13 @@
 %{
   #include<stdio.h>
+  #include "y.tab.h"
   int yydebug = 1;
+  void updateType(int, const char*, const char* );
 %}
 
 %start file_input
 %token T_name T_number T_string T_newline T_eof T_semi_colon T_eq T_comma T_plus_eq T_minus_eq T_star_eq T_div_eq T_mod_eq T_or_eq T_xor_eq T_del T_pass T_break T_continue T_return T_import T_from T_star T_Lparan T_Rparan T_as T_dot T_if T_colon T_elif T_else T_for T_in T_indent T_dedent T_or T_and T_not T_lt T_gt T_deq T_ge T_le T_noteq T_is T_isnot T_notin T_bitwiseor T_bitwiseand T_bitwisexor T_leftshift T_rightshift T_plus T_minus T_divide T_mod T_double_divide T_tilde T_double_star   T_squarebleft T_squarebright T_ellipsis T_none T_true T_false T_def
-%union {
-	int scope;
-	char* y_name;
-	char* type;
-};
-%locations
+%union {char* text; int scope;};
 %left T_and T_or T_in T_notin T_bitwiseor T_bitwiseand
 %left T_ge T_le T_eq T_deq T_noteq T_gt T_lt
 %left T_plus T_minus
@@ -158,7 +155,7 @@ compound_stmt
 	| funcdef
 
 funcdef
-	: T_def T_name parameters T_colon suite { updateType($<scope>2, "function", "function_name"); }
+	: T_def T_name parameters T_colon suite { printf("This is done!! \n"); updateType($<scope>2, $<text>2, "function_name"); }
 
 parameters
 	: T_Lparan optional_typedargslist T_Rparan

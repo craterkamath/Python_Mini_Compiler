@@ -6,6 +6,8 @@
     #include "stack.c"  
 	#include "uthash.h"
 
+	extern YYSTYPE yylval;
+
 
 	STACK indent;
 	int pointer=0;
@@ -22,6 +24,7 @@
 	} symbol_node;
 
    symbol_node* hash_table[1000];
+   char* p;
 
    void printTable(int scope){
    	symbol_node *iter;
@@ -41,9 +44,9 @@
    	}
    }
 
-   void updateType(int scope, const char* name, const char* type){
+   void updateType(int scope,char* name, char* type){
    		symbol_node* temp = NULL;
-   		printf("Inside Function");
+   		printf("Inside Function\n");
    		HASH_FIND_STR(hash_table[scope], name, temp);
    		if(temp != NULL)
    			strcpy(temp->type, type);
@@ -185,10 +188,12 @@ digit [0-9]
 											printf("Variable Found: %s\n", temp->name);
 											temp->line_no_used = yylineno;
 										}
-										printf("yytext: %s \n", yytext);
-										yylval.y_name = strdup(yytext);
+										//printf("yytext: %s \n", yytext);
+										p=(char *)malloc(strlen(yytext)+1 * sizeof(char));
+										strcpy(p, yytext);
+										yylval.text = strdup(p);
 										yylval.scope = scope;
-										printf("Finished Sending %s %s\n", yytext, yylval.y_name);
+										printf("Finished Sending %s %d %s\n", yytext, yylval.scope,  yylval.text);
                                        return T_name;
                                     }
 {digit}+                            {fprintf(yyout, "%s", yytext);printf("Found a number\n"); return T_number;}
