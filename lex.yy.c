@@ -1262,7 +1262,7 @@ YY_RULE_SETUP
 #line 174 "lexer.l"
 {
                                        fprintf(yyout, "%s", yytext);
-                                       printf("Matched %s\n", yytext);
+                                       printf("Matched : %s\n", yytext);
                                        int scope = peek(&indent);
                                        char* variable_name = yytext;
                                        symbol_node* temp = NULL;

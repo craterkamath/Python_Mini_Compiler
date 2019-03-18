@@ -172,7 +172,7 @@ optional_typedargslist
 	| typedargslist
 
 typedargslist
-	: T_name optional_eq_test repeat_optional_eq_test
+	: T_name optional_eq_test repeat_optional_eq_test 
 
 optional_eq_test
 	: %empty
@@ -358,6 +358,7 @@ end_testlist_comp
 
 trailer
 	: T_Lparan optional_arglist T_Rparan
+	| T_Lparan optional_typedargslist T_Rparan
 	| T_squarebleft subscriptlist T_squarebright
 	| T_dot T_name
 

@@ -1,78 +1,400 @@
-# Start Statements
+file_input
+	: %empty
+	| T_newline file_input
+	| stmt file_input
+	| T_eof
 
-file_input: (NEWLINE | stmt)* ENDMARKER
-stmt: simple_stmt | compound_stmt
+stmt
+	: simple_stmt
+	| compound_stmt
 
-# Basic Statements
-test: or_test ['if' or_test 'else' test]
-suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT
-simple_stmt: small_stmt (';' small_stmt)* [';'] NEWLINE
+simple_stmt
+	: small_stmt next_simple_stmt
 
-small_stmt: (expr_stmt | import_stmt | assert_stmt)
+next_simple_stmt
+	: end_simple_stmt
+	| T_semi_colon small_stmt next_simple_stmt
 
-expr_stmt: testlist_star_expr (annassign | augassign (testlist) | ('=' (testlist_star_expr))*)
-import_stmt: import_name | import_from
+end_simple_stmt
+	: T_newline
+	| T_semi_colon T_newline
+	| %empty
 
-if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
+small_stmt
+	: expr_stmt
+	| del_stmt
+	| pass_stmt
+	| flow_stmt
+	| import_stmt
 
-for_stmt: 'for' exprlist 'in' testlist ':' suite ['else' ':' suite]
+expr_stmt
+	: testlist_star_expr next_expr_stmt
+
+next_expr_stmt
+	: augassign testlist
+	| last_expr_stmt
+
+last_expr_stmt
+	: %empty
+	| T_eq testlist_star_expr last_expr_stmt
+
+testlist_star_expr
+	: first_testlist_star_expr last_testlist_star_expr
+
+first_testlist_star_expr
+	: test
+	| star_expr
+
+last_testlist_star_expr
+	: %empty
+	| T_comma end_testlist_star_expr
+
+end_testlist_star_expr
+	: %empty
+	| test last_testlist_star_expr
+	| star_expr last_testlist_star_expr
+
+augassign
+	: T_plus_eq
+	| T_minus_eq
+	| T_star_eq
+	| T_div_eq
+	| T_mod_eq
+	| T_or_eq
+	| T_xor_eq
+
+del_stmt
+	: T_del	exprlist
+
+pass_stmt
+	: T_pass
+
+flow_stmt
+	: break_stmt
+	| continue_stmt
+	| return_stmt
+
+break_stmt
+	: T_break
+
+continue_stmt
+	: T_continue
+
+return_stmt
+	: T_return optional_return
+
+optional_return
+	: %empty
+	| testlist
+
+import_stmt
+	: import_name
+	| import_from
+
+import_name
+	: T_import dotted_as_names
+
+import_from
+	: T_from dotted_name T_import end_import_from
+
+end_import_from
+	: T_star
+	| T_Lparan import_as_names T_Rparan
+	| import_as_names
+
+import_as_name
+	: T_name optional_t_name {updateType($<data->scope>1, $<data->name>1, "package_name"); }
+
+optional_t_name
+	: %empty
+	| T_as T_name {updateType($<data->scope>2, $<data->name>2, "package_alias"); }
+
+dotted_as_name
+	: dotted_name optional_t_name
+
+import_as_names
+	: import_as_name end_import_as_names
+
+end_import_as_names
+	: %empty
+	| T_comma import_as_name end_import_as_names
+
+dotted_as_names
+	: dotted_as_name end_dotted_as_names
+
+end_dotted_as_names
+	: %empty
+	| T_comma dotted_as_name end_dotted_as_names
+
+dotted_name
+	: T_name optional_dotted_name {updateType($<data->scope>1, $<data->name>1, "package_name"); }
+
+optional_dotted_name
+	: %empty
+	| T_dot dotted_name
+
+compound_stmt
+	: if_stmt
+	| for_stmt
+	| funcdef
+
+funcdef
+	: T_def T_name parameters T_colon suite {updateType($<data->scope>2, $<data->name>2, "function_name"); }
+
+parameters
+	: T_Lparan optional_typedargslist T_Rparan
+
+optional_typedargslist
+	: %empty
+	| typedargslist
+
+typedargslist
+	: T_name optional_eq_test repeat_optional_eq_test 
+
+optional_eq_test
+	: %empty
+	| T_eq test
+
+repeat_optional_eq_test
+	: %empty
+	| T_comma T_name optional_eq_test repeat_optional_eq_test
+
+if_stmt
+	: T_if test T_colon suite elif_stmt optional_else
+
+elif_stmt
+	: %empty
+	| T_elif test T_colon suite elif_stmt
+
+for_stmt
+	: T_for exprlist T_in testlist T_colon suite optional_else
+
+optional_else
+	: %empty
+	| T_else	T_colon suite
+
+suite
+	: simple_stmt
+	| T_newline T_indent stmt repeat_stmt T_dedent
+
+repeat_stmt
+	: %empty
+	| stmt repeat_stmt
+
+test
+	: or_test optional_if_else
+
+optional_if_else
+	: %empty
+	| T_if or_test T_else test
+
+or_test
+	: and_test repeat_or_test
+
+repeat_or_test
+	: %empty
+	| T_or and_test repeat_or_test
+
+and_test
+	: not_test repeat_and_test
+
+repeat_and_test
+	: %empty
+	| T_and not_test repeat_and_test
+
+not_test
+	: T_not not_test
+	| comparison
+
+comparison
+	: expr repeat_comp_expr
+
+repeat_comp_expr
+	: %empty
+	| comp_op expr repeat_comp_expr
+
+comp_op
+	: T_lt
+	| T_gt
+	| T_deq
+	| T_ge
+	| T_le
+	| T_noteq
+	| T_in
+	| T_notin
+	| T_is
+	| T_isnot
+
+star_expr
+	: T_star expr
+
+expr
+	: xor_expr repeat_expr
+
+repeat_expr
+	: %empty
+	| T_bitwiseor xor_expr repeat_expr
+
+xor_expr
+	: and_expr repeat_xor_expr
+
+repeat_xor_expr
+	: %empty
+	| T_bitwisexor and_expr repeat_xor_expr
+
+and_expr
+	: shift_expr repeat_and_expr
+
+repeat_and_expr
+	: %empty
+	| T_bitwiseand shift_expr repeat_and_expr
+
+shift_expr
+	: arith_expr repeat_shift_expr
+
+repeat_shift_expr
+	: %empty
+	| T_leftshift arith_expr repeat_shift_expr
+	| T_rightshift arith_expr repeat_shift_expr
+
+arith_expr
+	: term last_arith_expr
+
+last_arith_expr
+	: %empty
+	| T_plus term last_arith_expr
+	| T_minus term last_arith_expr
+
+term
+	: factor last_term
+
+last_term
+	: %empty
+	| T_star factor last_term
+	| T_divide factor last_term
+	| T_mod factor last_term
+	| T_double_divide factor last_term
+
+factor
+	: power
+	| T_plus factor
+	| T_minus factor
+	| T_tilde factor
 
 
-exprlist: (expr|star_expr) (',' (expr|star_expr))* [',']
-testlist: test (',' test)* [',']
+power
+	: atom_expr optional_factor
+	
+optional_factor
+	: %empty
+	| T_double_star factor
 
+atom_expr
+	: atom repeat_trailer
 
-or_test: and_test ('or' and_test)*
-and_test: not_test ('and' not_test)*
-not_test: 'not' not_test | comparison
+repeat_trailer
+	: %empty
+	| trailer repeat_trailer
 
-comparison: expr (comp_op expr)*
-expr: xor_expr ('|' xor_expr)*
-star_expr: '*' expr
+atom
+	: T_Lparan optional_testlist_comp T_Rparan
+	| T_squarebleft optional_testlist_comp T_squarebright
+	| T_name
+	| T_number
+	| T_string repeat_string
+	| T_ellipsis
+	| T_none
+	| T_true
+	| T_false
 
-comp_op: '<'|'>'|'=='|'>='|'<='|'<>'|'!='|'in'|'not' 'in'|'is'|'is' 'not'
+optional_testlist_comp
+	: %empty
+	| testlist_comp
 
-compound_stmt: if_stmt | for_stmt
+repeat_string
+	: %empty
+	| T_string repeat_string
 
-xor_expr: and_expr ('^' and_expr)*
-and_expr: shift_expr ('&' shift_expr)*
-shift_expr: arith_expr (('<<'|'>>') arith_expr)*
-arith_expr: term (('+'|'-') term)*
+testlist_comp
+	: first_testlist_comp last_testlist_comp
 
-term: factor (('*'|'@'|'/'|'%'|'//') factor)*
-factor: ('+'|'-'|'~') factor | power
+first_testlist_comp
+	: test
+	| star_expr
 
-# Exponential Operator
-power: atom_expr ['**' factor]
+last_testlist_comp
+	: repeat_testlist_comp optional_comma
 
-atom_expr: [AWAIT] atom trailer*
+repeat_testlist_comp
+	: %empty
+	| T_comma end_testlist_comp
 
-atom: ('(' [testlist_comp] ')' |
-       '[' [testlist_comp] ']' |
-       NAME | NUMBER | STRING+ | '...' | 'None' | 'True' | 'False')
+end_testlist_comp
+	: test repeat_testlist_comp
+	| star_expr repeat_testlist_comp
 
-testlist_comp: (test|star_expr) ( comp_for | (',' (test|star_expr))* [','] )
+trailer
+	: T_Lparan optional_arglist T_Rparan
+	| T_Lparan optional_typedargslist T_Rparan
+	| T_squarebleft subscriptlist T_squarebright
+	| T_dot T_name
 
-trailer: '(' [arglist] ')' | '[' subscriptlist ']' | '.' NAME
-subscriptlist: subscript (',' subscript)* [',']
-subscript: test | [test] ':' [test] [sliceop]
+optional_arglist
+	: %empty
+	| arglist
 
-#Slicing Operator
-sliceop: ':' [test]
-annassign: ':' test ['=' test]
+subscriptlist
+	: subscript repeat_subscript optional_comma
 
-testlist_star_expr: (test|star_expr) (',' (test|star_expr))* [',']
-augassign: ('+=' | '-=' | '*=' | '@=' | '/=' | '%=' | '&=' | '|=' | '^=' |
-            '<<=' | '>>=' | '**=' | '//=')
+repeat_subscript
+	: %empty
+	| T_comma subscript repeat_subscript
 
-#Import statements and its variations
-import_name: 'import' dotted_as_names
-# note below: the ('.' | '...') is necessary because '...' is tokenized as ELLIPSIS
-import_from: ('from' (('.' | '...')* dotted_name | ('.' | '...')+)
-              'import' ('*' | '(' import_as_names ')' | import_as_names))
-import_as_name: NAME ['as' NAME]
-dotted_as_name: dotted_name ['as' NAME]
-import_as_names: import_as_name (',' import_as_name)* [',']
-dotted_as_names: dotted_as_name (',' dotted_as_name)*
-dotted_name: NAME ('.' NAME)*
-assert_stmt: 'assert' test [',' test]
+subscript
+	: test
+	| optional_test T_colon optional_test optional_sliceop
+
+optional_test
+	: %empty
+	| test
+
+optional_sliceop
+	: %empty
+	| sliceop
+
+sliceop
+	: T_colon optional_test
+
+exprlist
+	: first_exprlist last_exprlist optional_comma
+
+first_exprlist
+	: expr
+	| star_expr
+
+last_exprlist
+	: %empty
+	| T_comma first_exprlist last_exprlist
+
+optional_comma
+	: %empty
+	| T_comma
+
+testlist
+	: test repeat_test optional_comma
+
+repeat_test
+	: %empty
+	| T_comma test repeat_test
+
+arglist
+	: argument repeat_argument optional_comma
+
+repeat_argument
+	: %empty
+	| T_comma argument repeat_argument
+
+argument
+	: test T_eq test
+	| T_double_star test
+	| T_star test

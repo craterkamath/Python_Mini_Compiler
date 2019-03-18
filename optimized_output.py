@@ -11,7 +11,7 @@ t = 5
 if a == 4:
 	pass
 a = 5
-def function(a, f, g, h):
+def function(a = 10, f, g, h):
 	if a == 5:
 		pass
 	elif t == 0:
@@ -21,4 +21,4 @@ def function(a, f, g, h):
 		return a
 		if t == 0:
 			return
-function()
+function(a, g, r)
